@@ -55,7 +55,7 @@ function M.open_window(bufnr, display_lines)
         width = width,
         height = height,
         col = math.floor((vim.api.nvim_get_option("columns") - width) / 2 - 1),
-        row = math.floor((vim.api.nvim_get_option("lines") - height) / 2) - 1,
+        row = math.floor((vim.api.nvim_get_option("lines") - height) / 2 - 1),
         border = "rounded",
         style = "minimal",
     })

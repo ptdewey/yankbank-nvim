@@ -1,11 +1,17 @@
 # YankBank
-A Neovim plugin for keeping track of more recent yanks and deletions and exposing them in a quick to access menu.
+A Neovim plugin for keeping track of more recent yanks and deletions and exposing them in a quick access menu.
 
 ## What it Does
-<!-- TODO: screenshots -->
-<!-- TODO: talk about how the menu populates-->
-TODO:
+YankBank stores the N recent yanks into the unnamed register ("), then populates a popup window with these recent yanks, allowing for quick access to recent yank history.
+Upon opening the popup menu, the current contents of the unnamedplus (+) register are also added to the menu (if they are different than the current contents of the unnamed register).
 
+Choosing an entry from the menu (by hitting enter) will paste it into the currently open buffer at the cursor position.
+
+Popup window:
+![YankBank popup window](assets/screenshot-1.png)
+
+The menu is specific to the current session, and will only contain the contents of the current unnamedplus register upon opening in a completely new session.
+It will be populated further for each yank or deletion in that session.
 
 ## Installation and Setup
 
@@ -38,4 +44,10 @@ I would personally also recommend setting a keybind to open the menu.
 -- map to '<leader>y'
 vim.keymap.set("n", "<leader>y", ":YankBank<CR>", { noremap = true })
 ```
+
+## Potential Improvements
+- Disallow duplicate entries
+- Keybind for yanking from menu instead of pasting
+- Expose popup keybind behavior through setup options
+- Access to other registers (number/letter registers?)
 
