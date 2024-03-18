@@ -35,6 +35,23 @@ use {
 }
 ```
 
+The setup function also supports taking in a table of options:
+| Option | Type | Default |
+|-------------|--------------------------------------------|----------------|
+| max_entries | integer number of entries to show in popup | 10 |
+| sep | string separator to show between table entries | "-----" |
+
+
+If no separator is desired, pass in an empty string for sep:
+```lua
+    config = function()
+        require('yankbank').setup({
+            max_entries = 12,
+            sep = "",
+        })
+    end,
+```
+
 ## Usage
 
 The popup menu can be opened with the command:`:YankBank`, an entry is pasted at the current cursor position by hitting enter, and the menu can be closed by hitting escape, ctrl-c, or q.

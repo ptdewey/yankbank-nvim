@@ -7,7 +7,7 @@ local data = require("yankbank.data")
 local helpers = require("yankbank.helpers")
 
 -- create new buffer and reformat yank table for ui
-function M.create_and_fill_buffer(yanks, max_entries)
+function M.create_and_fill_buffer(yanks, max_entries, sep)
     -- check the content of the system clipboard register
     -- TODO: this could be replaced with some sort of polling of the + register
     local text = vim.fn.getreg('+')
@@ -29,7 +29,7 @@ function M.create_and_fill_buffer(yanks, max_entries)
     local current_filetype = vim.bo.filetype
     vim.api.nvim_buf_set_option(bufnr, 'filetype', current_filetype)
 
-    local display_lines, line_yank_map = data.get_display_lines(yanks)
+    local display_lines, line_yank_map = data.get_display_lines(yanks, sep)
 
     -- replace current buffer contents with updated table
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, display_lines)
@@ -46,16 +46,16 @@ function M.open_window(bufnr, display_lines)
     end
 
     -- define buffer window width and height based on number of columns
-    local width = math.min(max_width + 4, vim.api.nvim_get_option("columns") - 50)
-    local height = math.min(#display_lines, vim.api.nvim_get_option("lines") - 4)
+    local width = math.min(max_width + 4, vim.api.nvim_get_option("columns"))
+    local height = math.min(#display_lines, vim.api.nvim_get_option("lines"))
 
     -- open window
     local win_id = vim.api.nvim_open_win(bufnr, true, {
         relative = "editor",
         width = width,
         height = height,
-        col = math.floor((vim.api.nvim_get_option("columns") - width) / 2 - 1),
-        row = math.floor((vim.api.nvim_get_option("lines") - height) / 2 - 1),
+        col = math.floor((vim.api.nvim_get_option("columns") - width) / 2),
+        row = math.floor((vim.api.nvim_get_option("lines") - height) / 2),
         border = "rounded",
         style = "minimal",
     })

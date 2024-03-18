@@ -2,7 +2,7 @@
 local M = {}
 
 -- reformat yanks table for popup
-function M.get_display_lines(yanks)
+function M.get_display_lines(yanks, sep)
     local display_lines = {}
     local line_yank_map = {}
     local yank_num = 0
@@ -39,10 +39,11 @@ function M.get_display_lines(yanks)
             table.insert(line_yank_map, i)
         end
 
-        -- Add a visual separator between yanks, aligned with the yank content
-        -- TODO: allow turning off/on in plugin setup
         if i < #yanks then
-            table.insert(display_lines, string.rep(" ", max_digits + 2) .. "------")
+            -- Add a visual separator between yanks, aligned with the yank content
+            if sep ~= "" then
+                table.insert(display_lines, string.rep(" ", max_digits + 2) .. sep)
+            end
             table.insert(line_yank_map, false)
         end
     end
