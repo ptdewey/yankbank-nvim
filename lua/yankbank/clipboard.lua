@@ -4,7 +4,7 @@ local M = {}
 -- Function to add yanked text to table
 function M.add_yank(yanks, text, max_entries)
     -- avoid adding empty strings
-    if text ~= "" and text ~= "\n" then
+    if text ~= "" and text ~= " " and text ~= "\n" then
         -- do not update with duplicate values
         for _, entry in ipairs(yanks) do
             if entry == text then
@@ -35,9 +35,9 @@ function M.setup_yank_autocmd(yanks, max_entries)
             if vim.v.event.regname == '' then
                 local yanked_text = vim.fn.getreg(rn)
 
-                -- don't track single character deletions
-                if #yanked_text <= 1 and reg_type ~= "y" then
-                    return
+                -- NOTE: this only blocks adding to list if something else is in plus register
+                if string.len(yanked_text) <= 1 then
+                     return
                 end
 
                 M.add_yank(yanks, yanked_text, max_entries)
