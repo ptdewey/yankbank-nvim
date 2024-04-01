@@ -31,15 +31,20 @@ end
 
 -- customized paste function that functions more like 'p'
 function M.smart_paste(text)
-    -- determine if the text should be treated as line-wise based on its ending
-    if text:sub(-1) == '\n' then
-        -- line-wise
-        vim.cmd("normal! o")
-        vim.api.nvim_paste(text, false, -1)
-    else
-        -- character-wise
-        vim.api.nvim_paste(text, false, -1)
+    -- convert text string to string list
+    local lines = {}
+    for line in text:gmatch("([^\n]*)\n?") do
+        table.insert(lines, line)
     end
+
+    -- determine if the text should be treated as line-wise based on its ending
+    local type = "c"
+    if #lines > 1 then
+        type = "l"
+        -- remove last newline character to replicate base put behavior
+        table.remove(lines)
+    end
+    vim.api.nvim_put(lines, type, true, true)
 end
 
 return M

@@ -4,9 +4,14 @@ local M = {}
 -- Function to add yanked text to table
 function M.add_yank(yanks, text, max_entries)
     -- avoid adding empty strings
-    if text ~= "" then
+    if text ~= "" and text ~= "\n" then
+        -- do not update with duplicate values
+        for _, entry in ipairs(yanks) do
+            if entry == text then
+                return
+            end
+        end
         table.insert(yanks, 1, text)
-
         if #yanks > max_entries then
             table.remove(yanks)
         end

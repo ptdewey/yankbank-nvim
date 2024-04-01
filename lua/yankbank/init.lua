@@ -28,6 +28,10 @@ local function show_yank_bank(args)
     local sep_opt = opts.sep or sep
 
     local bufnr, display_lines, line_yank_map = menu.create_and_fill_buffer(yanks, max_entries_opt, sep_opt)
+    -- handle empty bank case
+    if not bufnr then
+        return
+    end
     local win_id = menu.open_window(bufnr, display_lines)
     menu.set_keymaps(win_id, bufnr, yanks, line_yank_map)
 end
