@@ -55,7 +55,7 @@ If no separator is desired, pass in an empty string for sep:
 ## Usage
 
 The popup menu can be opened with the command:`:YankBank`, an entry is pasted at the current cursor position by hitting enter, and the menu can be closed by hitting escape, ctrl-c, or q.
-An entry from the menu can also be yanked into the unnamed register by hitting yy.
+An entry from the menu can also be yanked into the unnamedplus register by hitting yy.
 
 I would personally also recommend setting a keybind to open the menu.
 ```lua
@@ -68,3 +68,6 @@ vim.keymap.set("n", "<leader>y", ":YankBank<CR>", { noremap = true })
 - Access to other registers (number/letter registers?)
 - Polling on unnamedplus register to populate bank in more intuitive manner (could be enabled as option)
 
+## Alternatives
+- [neoclip](https://github.com/AckslD/nvim-neoclip.lua)
+- [Yanky](https://github.com/gbprod/yanky.nvim)

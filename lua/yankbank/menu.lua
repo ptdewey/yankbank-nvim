@@ -93,10 +93,6 @@ function M.set_keymaps(win_id, bufnr, yanks, line_yank_map)
 
             -- close window upon selection
             vim.api.nvim_win_close(win_id, true)
-
-            -- call the custom paste function with adjusted indentation
-            print(vim.fn.getregtype())
-            -- vim.api.nvim_paste(text, false, -1)
             helpers.smart_paste(text)
         else
             print("Error: Invalid selection")
@@ -105,11 +101,12 @@ function M.set_keymaps(win_id, bufnr, yanks, line_yank_map)
 
     -- bind yank behavior to y
     vim.keymap.set('n', 'yy', function()
-        local cursor = vim.api.nvim_win_get_cursor(0)[1]
+        local cursor = vim.api.nvim_win_get_cursor(win_id)[1]
         local yankIndex = line_yank_map[cursor]
         if yankIndex then
             local text = yanks[yankIndex]
-            vim.fn.setreg('"', text)
+            -- NOTE: possibly change this to '"' if not using system clipboard
+            vim.fn.setreg('+', text)
             vim.api.nvim_win_close(win_id, true)
         end
     end, { buffer = bufnr })
