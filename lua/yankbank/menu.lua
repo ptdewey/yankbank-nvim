@@ -89,11 +89,48 @@ function M.set_keymaps(win_id, bufnr, yanks, line_yank_map, opts)
     -- merge default and options keymap tables
     local k = vim.tbl_deep_extend("force", default_keymaps, opts.keymaps or {})
 
+    -- check table for number behavior option (prefix or jump, default to prefix)
+    opts.num_behavior = opts.num_behavior or "prefix"
+
     -- popup buffer navigation binds
-    vim.keymap.set("n", k.navigation_next, helpers.next_numbered_item,
-        { noremap = true, silent = true, buffer = bufnr })
-    vim.keymap.set("n", k.navigation_prev, helpers.prev_numbered_item,
-        { noremap = true, silent = true, buffer = bufnr })
+    if opts.num_behavior == "prefix" then
+        vim.keymap.set("n", k.navigation_next, function()
+            local count = vim.v.count1 > 0 and vim.v.count1 or 1
+            helpers.next_numbered_item(count)
+            return ""
+        end, { noremap = true, silent = true, buffer = bufnr })
+        vim.keymap.set("n", k.navigation_prev, function()
+            local count = vim.v.count1 > 0 and vim.v.count1 or 1
+            helpers.prev_numbered_item(count)
+            return ""
+        end, { noremap = true, silent = true, buffer = bufnr })
+    else
+        vim.keymap.set("n", k.navigation_next, helpers.next_numbered_item,
+            { noremap = true, silent = true, buffer = bufnr })
+        vim.keymap.set("n", k.navigation_prev, helpers.prev_numbered_item,
+            { noremap = true, silent = true, buffer = bufnr })
+    end
+
+    -- Map number keys to jump to entry if num_behavior is 'jump'
+    if opts.num_behavior == "jump" then
+        -- TODO: deal with delayed trigger upon hitting number that is part of valid sequence
+        -- i.e. '1' when '10' is a valid entry
+        for i = 1, opts.max_entries do
+            vim.keymap.set("n", tostring(i), function()
+                local target_line = nil
+                for line_num, yank_num in pairs(line_yank_map) do
+                    if yank_num == i then
+                        target_line = line_num
+                        break
+                    end
+                end
+                if target_line then
+                    vim.api.nvim_win_set_cursor(win_id, {target_line, 0})
+                end
+            end, map_opts)
+        end
+    end
+
 
     -- bind paste behavior
     vim.keymap.set("n", k.paste, function()
@@ -130,6 +167,7 @@ function M.set_keymaps(win_id, bufnr, yanks, line_yank_map, opts)
             vim.api.nvim_win_close(win_id, true)
         end, map_opts)
     end
+
 end
 
 return M

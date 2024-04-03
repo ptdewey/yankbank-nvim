@@ -46,6 +46,7 @@ The setup function also supports taking in a table of options:
 | keymaps.paste | string | `"<CR>"` |
 | keymaps.yank | string | `"yy"` |
 | keymaps.close | table of strings | `{ "<Esc>", "<C-c>", "q" }` |
+| num_behavior | string defining jump behavior "prefix" or "jump" | `"prefix"` |
 
 
 If no separator is desired, pass in an empty string for sep:
@@ -58,9 +59,15 @@ If no separator is desired, pass in an empty string for sep:
                 navigation_next = "j",
                 navigation_prev = "k",
             },
+            num_behavior = "prefix",
         })
     end,
 ```
+
+The 'num_behavior' option defines in-popup navigation behavior when hitting number keys.
+- `num_behavior = "prefix"` works similar to traditional vim navigation with '3j' moving down 3 entries in the bank.
+- `num_behavior = "jump"` jumps to entry matching the pressed number key (i.e. '3' jumps to entry 3)
+    - Note: If 'max_entries' is a two-digit number, there will be a delay upon pressing numbers that prefix a valid entry.
 
 ## Usage
 
@@ -76,7 +83,6 @@ vim.keymap.set("n", "<leader>y", "<cmd>YankBank<CR>", { noremap = true })
 ## Potential Improvements
 - Persistence between sessions (through either sqlite database or just a file)
 - Polling on unnamedplus register to populate bank in more intuitive manner (could be enabled as option)
-- Number based navigation of menu
 - nvim-cmp integration
 - fzf integration
 - Setup options configuring which registers are included
