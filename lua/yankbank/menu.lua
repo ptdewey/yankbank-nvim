@@ -50,6 +50,8 @@ function M.open_window(bufnr, display_lines)
     end
 
     -- define buffer window width and height based on number of columns
+    -- FIX: long enough entries will cause window to go below end of screen
+    -- FIX: wrapping long lines will cause entries below to not show in menu (requires scrolling to see)
     local width = math.min(max_width + 4, vim.api.nvim_get_option_value("columns", {}))
     local height = math.min(display_lines and #display_lines or 1, vim.api.nvim_get_option_value("lines", {}))
 
@@ -71,19 +73,30 @@ function M.open_window(bufnr, display_lines)
 end
 
 -- Set key mappings for the popup window
--- TODO: configurable options (take in inside setup function)
-function M.set_keymaps(win_id, bufnr, yanks, line_yank_map)
+function M.set_keymaps(win_id, bufnr, yanks, line_yank_map, opts)
     -- Key mappings for selection and closing the popup
     local map_opts = { noremap = true, silent = true, buffer = bufnr }
 
+    -- default plugin keymaps
+    local default_keymaps = {
+        navigation_next = "j",
+        navigation_prev = "k",
+        paste = "<CR>",
+        yank = "yy",
+        close = { "<Esc>", "<C-c>", "q" }, -- TODO: issues might arise passing non-table single value for this
+    }
+
+    -- merge default and options keymap tables
+    local k = vim.tbl_deep_extend("force", default_keymaps, opts.keymaps or {})
+
     -- popup buffer navigation binds
-    vim.keymap.set('n', 'j', helpers.next_numbered_item,
+    vim.keymap.set("n", k.navigation_next, helpers.next_numbered_item,
         { noremap = true, silent = true, buffer = bufnr })
-    vim.keymap.set('n', 'k', helpers.prev_numbered_item,
+    vim.keymap.set("n", k.navigation_prev, helpers.prev_numbered_item,
         { noremap = true, silent = true, buffer = bufnr })
 
-    -- bind paste behavior to enter
-    vim.keymap.set('n', '<CR>', function()
+    -- bind paste behavior
+    vim.keymap.set("n", k.paste, function()
         local cursor = vim.api.nvim_win_get_cursor(win_id)[1]
         -- use the mapping to find the original yank
         local yankIndex = line_yank_map[cursor]
@@ -99,8 +112,8 @@ function M.set_keymaps(win_id, bufnr, yanks, line_yank_map)
         end
     end, { buffer = bufnr })
 
-    -- bind yank behavior to y
-    vim.keymap.set('n', 'yy', function()
+    -- bind yank behavior
+    vim.keymap.set("n", k.yank, function()
         local cursor = vim.api.nvim_win_get_cursor(win_id)[1]
         local yankIndex = line_yank_map[cursor]
         if yankIndex then
@@ -112,9 +125,8 @@ function M.set_keymaps(win_id, bufnr, yanks, line_yank_map)
     end, { buffer = bufnr })
 
     -- close popup keybinds
-    local close_maps = { "<Esc>", "<C-c>", "q" }
-    for _, map in ipairs(close_maps) do
-        vim.keymap.set('n', map, function()
+    for _, map in ipairs(k.close) do
+        vim.keymap.set("n", map, function()
             vim.api.nvim_win_close(win_id, true)
         end, map_opts)
     end
