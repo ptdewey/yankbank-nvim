@@ -1,14 +1,19 @@
 # YankBank
+
 A Neovim plugin for keeping track of more recent yanks and deletions and exposing them in a quick access menu.
 
 ## What it Does
+
 YankBank stores the N recent yanks into the unnamed register ("), then populates a popup window with these recent yanks, allowing for quick access to recent yank history.
 Upon opening the popup menu, the current contents of the unnamedplus (+) register are also added to the menu (if they are different than the current contents of the unnamed register).
 
 Choosing an entry from the menu (by hitting enter) will paste it into the currently open buffer at the cursor position.
 
-Popup window:
+### Screenshots
+
 ![YankBank popup window](assets/screenshot-1.png)
+
+![YankBank popup window zoomed](assets/screenshot-2.png)
 
 The menu is specific to the current session, and will only contain the contents of the current unnamedplus register upon opening in a completely new session.
 It will be populated further for each yank or deletion in that session.
@@ -34,6 +39,8 @@ use {
     end,
 }
 ```
+
+### Setup Options
 
 The setup function also supports taking in a table of options:
 | Option | Type | Default |
@@ -69,6 +76,7 @@ The 'num_behavior' option defines in-popup navigation behavior when hitting numb
 - `num_behavior = "jump"` jumps to entry matching the pressed number key (i.e. '3' jumps to entry 3)
     - Note: If 'max_entries' is a two-digit number, there will be a delay upon pressing numbers that prefix a valid entry.
 
+
 ## Usage
 
 The popup menu can be opened with the command:`:YankBank`, an entry is pasted at the current cursor position by hitting enter, and the menu can be closed by hitting escape, ctrl-c, or q.
@@ -80,7 +88,9 @@ I would personally also recommend setting a keybind to open the menu.
 vim.keymap.set("n", "<leader>y", "<cmd>YankBank<CR>", { noremap = true })
 ```
 
+
 ## Potential Improvements
+
 - Persistence between sessions (through either sqlite database or just a file)
 - Polling on unnamedplus register to populate bank in more intuitive manner (could be enabled as option)
 - nvim-cmp integration
@@ -88,5 +98,6 @@ vim.keymap.set("n", "<leader>y", "<cmd>YankBank<CR>", { noremap = true })
 - Setup options configuring which registers are included
 
 ## Alternatives
+
 - [nvim-neoclip](https://github.com/AckslD/nvim-neoclip.lua)
 - [yanky.nvim](https://github.com/gbprod/yanky.nvim)
