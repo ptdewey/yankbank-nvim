@@ -1,7 +1,9 @@
 # YankBank
+
 A Neovim plugin for keeping track of more recent yanks and deletions and exposing them in a quick access menu.
 
 ## What it Does
+
 YankBank stores the N recent yanks into the unnamed register ("), then populates a popup window with these recent yanks, allowing for quick access to recent yank history.
 Upon opening the popup menu, the current contents of the unnamedplus (+) register are also added to the menu (if they are different than the current contents of the unnamed register).
 
@@ -16,6 +18,7 @@ It will be populated further for each yank or deletion in that session.
 ## Installation and Setup
 
 Lazy:
+
 ```lua
 {
     "ptdewey/yankbank-nvim",
@@ -26,6 +29,7 @@ Lazy:
 ```
 
 Packer:
+
 ```lua
 use {
     'ptdewey/yankbank-nvim',
@@ -41,8 +45,8 @@ The setup function also supports taking in a table of options:
 | max_entries | integer number of entries to show in popup | 10 |
 | sep | string separator to show between table entries | "-----" |
 
-
 If no separator is desired, pass in an empty string for sep:
+
 ```lua
     config = function()
         require('yankbank').setup({
@@ -58,16 +62,19 @@ The popup menu can be opened with the command:`:YankBank`, an entry is pasted at
 An entry from the menu can also be yanked into the unnamedplus register by hitting yy.
 
 I would personally also recommend setting a keybind to open the menu.
+
 ```lua
 -- map to '<leader>y'
-vim.keymap.set("n", "<leader>y", ":YankBank<CR>", { noremap = true })
+vim.keymap.set("n", "<leader>y", "<cmd>YankBank<CR>", { noremap = true })
 ```
 
 ## Potential Improvements
+
 - Expose popup keybind behavior through setup options
 - Access to other registers (number/letter registers?)
 - Polling on unnamedplus register to populate bank in more intuitive manner (could be enabled as option)
 
 ## Alternatives
+
 - [neoclip](https://github.com/AckslD/nvim-neoclip.lua)
 - [Yanky](https://github.com/gbprod/yanky.nvim)
