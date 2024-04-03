@@ -38,8 +38,14 @@ use {
 The setup function also supports taking in a table of options:
 | Option | Type | Default |
 |-------------|--------------------------------------------|----------------|
-| max_entries | integer number of entries to show in popup | 10 |
-| sep | string separator to show between table entries | "-----" |
+| max_entries | integer number of entries to show in popup | `10` |
+| sep | string separator to show between table entries | `"-----"` |
+| keymaps | table containing keymap overrides | `{}` |
+| keymaps.navigation_next | string | `"j"` |
+| keymaps.navigation_prev | string | `"k"` |
+| keymaps.paste | string | `"<CR>"` |
+| keymaps.yank | string | `"yy"` |
+| keymaps.close | table of strings | `{ "<Esc>", "<C-c>", "q" }` |
 
 
 If no separator is desired, pass in an empty string for sep:
@@ -48,6 +54,10 @@ If no separator is desired, pass in an empty string for sep:
         require('yankbank').setup({
             max_entries = 12,
             sep = "",
+            keymaps = {
+                navigation_next = "j",
+                navigation_prev = "k",
+            },
         })
     end,
 ```
@@ -60,14 +70,17 @@ An entry from the menu can also be yanked into the unnamedplus register by hitti
 I would personally also recommend setting a keybind to open the menu.
 ```lua
 -- map to '<leader>y'
-vim.keymap.set("n", "<leader>y", ":YankBank<CR>", { noremap = true })
+vim.keymap.set("n", "<leader>y", "<cmd>YankBank<CR>", { noremap = true })
 ```
 
 ## Potential Improvements
-- Expose popup keybind behavior through setup options
-- Access to other registers (number/letter registers?)
+- Persistence between sessions (through either sqlite database or just a file)
 - Polling on unnamedplus register to populate bank in more intuitive manner (could be enabled as option)
+- Number based navigation of menu
+- nvim-cmp integration
+- fzf integration
+- Setup options configuring which registers are included
 
 ## Alternatives
-- [neoclip](https://github.com/AckslD/nvim-neoclip.lua)
-- [Yanky](https://github.com/gbprod/yanky.nvim)
+- [nvim-neoclip](https://github.com/AckslD/nvim-neoclip.lua)
+- [yanky.nvim](https://github.com/gbprod/yanky.nvim)
