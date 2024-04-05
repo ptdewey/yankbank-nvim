@@ -14,7 +14,7 @@ function M.next_numbered_item(steps)
             jumps_made = jumps_made + 1
             last_entry = i
             if jumps_made == steps then
-                vim.api.nvim_win_set_cursor(0, {i, 0})
+                vim.api.nvim_win_set_cursor(0, { i, 0 })
                 return
             end
         end
@@ -22,7 +22,6 @@ function M.next_numbered_item(steps)
     -- if steps exceeds number of entries below, jump to last entry
     vim.api.nvim_win_set_cursor(0, { last_entry, 0 })
 end
-
 
 -- navigate to the previous numbered item
 function M.prev_numbered_item(steps)
@@ -34,7 +33,7 @@ function M.prev_numbered_item(steps)
         if line:match("^%s*%d+:") and jumps_made < steps then
             jumps_made = jumps_made + 1
             if jumps_made == steps then
-                vim.api.nvim_win_set_cursor(0, {i, 0})
+                vim.api.nvim_win_set_cursor(0, { i, 0 })
                 return
             end
         end

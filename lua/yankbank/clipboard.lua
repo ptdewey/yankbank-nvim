@@ -32,12 +32,12 @@ function M.setup_yank_autocmd(yanks, max_entries)
             local rn = vim.v.event.regname
 
             -- check changes wwere made to default register
-            if vim.v.event.regname == '' then
+            if vim.v.event.regname == "" then
                 local yanked_text = vim.fn.getreg(rn)
 
                 -- NOTE: this only blocks adding to list if something else is in plus register
                 if string.len(yanked_text) <= 1 then
-                     return
+                    return
                 end
 
                 M.add_yank(yanks, yanked_text, max_entries)

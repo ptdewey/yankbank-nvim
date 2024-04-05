@@ -20,7 +20,8 @@ local function show_yank_bank(opts)
     local sep_opt = opts.sep or sep
     opts.keymaps = opts.keymaps or {}
 
-    local bufnr, display_lines, line_yank_map = menu.create_and_fill_buffer(yanks, max_entries_opt, sep_opt)
+    local bufnr, display_lines, line_yank_map =
+        menu.create_and_fill_buffer(yanks, max_entries_opt, sep_opt)
     -- handle empty bank case
     if not bufnr then
         return
