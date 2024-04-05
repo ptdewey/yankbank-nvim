@@ -24,11 +24,11 @@ function M.setup_yank_autocmd(yanks, max_entries)
         callback = function()
             -- TODO: this function can be expanded to incorporate other registers
             -- - use vim.v.event.regname and an allowlist
+            -- local reg_type = vim.v.event.operator
             -- if reg_type == "y" or reg_type == "d" then
             -- local yanked_text = vim.fn.getreg('"')
 
             -- get register information
-            local reg_type = vim.v.event.operator
             local rn = vim.v.event.regname
 
             -- check changes wwere made to default register

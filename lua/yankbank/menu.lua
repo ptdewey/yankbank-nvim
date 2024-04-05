@@ -53,10 +53,10 @@ function M.open_window(bufnr, display_lines)
     -- FIX: long enough entries will cause window to go below end of screen
     -- FIX: wrapping long lines will cause entries below to not show in menu (requires scrolling to see)
     local width =
-        math.min(max_width + 4, vim.api.nvim_get_option_value("columns", {}))
+        math.min(max_width, vim.api.nvim_get_option_value("columns", {}) - 4)
     local height = math.min(
         display_lines and #display_lines or 1,
-        vim.api.nvim_get_option_value("lines", {})
+        vim.api.nvim_get_option_value("lines", {}) - 10
     )
 
     -- open window
