@@ -42,22 +42,19 @@ function M.prev_numbered_item(steps)
     vim.api.nvim_win_set_cursor(0, { 1, 0 })
 end
 
--- customized paste function that functions more like 'p'
-function M.smart_paste(text)
+-- customized paste function that functions like 'p'
+function M.smart_paste(text, reg_type)
     -- convert text string to string list
     local lines = {}
     for line in text:gmatch("([^\n]*)\n?") do
         table.insert(lines, line)
     end
 
-    -- determine if the text should be treated as line-wise based on its ending
-    local type = "c"
+    -- remove last newline character to replicate base put behavior
     if #lines > 1 then
-        type = "l"
-        -- remove last newline character to replicate base put behavior
         table.remove(lines)
     end
-    vim.api.nvim_put(lines, type, true, true)
+    vim.api.nvim_put(lines, reg_type, true, true)
 end
 
 return M

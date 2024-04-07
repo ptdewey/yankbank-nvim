@@ -7,6 +7,7 @@ local clipboard = require("yankbank.clipboard")
 
 -- initialize yanks tables
 local yanks = {}
+local reg_types = {}
 local max_entries = 10
 local sep = "-----"
 
@@ -21,13 +22,13 @@ local function show_yank_bank(opts)
     opts.keymaps = opts.keymaps or {}
 
     local bufnr, display_lines, line_yank_map =
-        menu.create_and_fill_buffer(yanks, max_entries_opt, sep_opt)
+        menu.create_and_fill_buffer(yanks, reg_types, max_entries_opt, sep_opt)
     -- handle empty bank case
     if not bufnr then
         return
     end
     local win_id = menu.open_window(bufnr, display_lines)
-    menu.set_keymaps(win_id, bufnr, yanks, line_yank_map, opts)
+    menu.set_keymaps(win_id, bufnr, yanks, reg_types, line_yank_map, opts)
 end
 
 -- plugin setup
@@ -36,10 +37,9 @@ function M.setup(opts)
 
     -- parse opts
     max_entries = opts.max_entries or max_entries
-    -- sep = opts.sep or sep
 
     -- create clipboard autocmds
-    clipboard.setup_yank_autocmd(yanks, max_entries)
+    clipboard.setup_yank_autocmd(yanks, reg_types, max_entries)
 
     -- Create user command
     vim.api.nvim_create_user_command("YankBank", function()
