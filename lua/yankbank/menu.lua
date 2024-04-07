@@ -7,13 +7,14 @@ local data = require("yankbank.data")
 local helpers = require("yankbank.helpers")
 
 -- create new buffer and reformat yank table for ui
-function M.create_and_fill_buffer(yanks, max_entries, sep)
+function M.create_and_fill_buffer(yanks, reg_types, max_entries, sep)
     -- check the content of the system clipboard register
     -- TODO: this could be replaced with some sort of polling of the + register
     local text = vim.fn.getreg("+")
     local most_recent_yank = yanks[1] or ""
     if text ~= most_recent_yank then
-        clipboard.add_yank(yanks, text, max_entries)
+        local reg_type = vim.fn.getregtype("+")
+        clipboard.add_yank(yanks, reg_types, text, reg_type, max_entries)
     end
 
     -- stop if yank table is empty
@@ -81,7 +82,7 @@ function M.open_window(bufnr, display_lines)
 end
 
 -- Set key mappings for the popup window
-function M.set_keymaps(win_id, bufnr, yanks, line_yank_map, opts)
+function M.set_keymaps(win_id, bufnr, yanks, reg_types, line_yank_map, opts)
     -- Key mappings for selection and closing the popup
     local map_opts = { noremap = true, silent = true, buffer = bufnr }
 
@@ -158,7 +159,7 @@ function M.set_keymaps(win_id, bufnr, yanks, line_yank_map, opts)
 
             -- close window upon selection
             vim.api.nvim_win_close(win_id, true)
-            helpers.smart_paste(text)
+            helpers.smart_paste(text, reg_types[yankIndex])
         else
             print("Error: Invalid selection")
         end
@@ -171,6 +172,7 @@ function M.set_keymaps(win_id, bufnr, yanks, line_yank_map, opts)
         if yankIndex then
             local text = yanks[yankIndex]
             -- NOTE: possibly change this to '"' if not using system clipboard
+            -- - make this an option
             vim.fn.setreg("+", text)
             vim.api.nvim_win_close(win_id, true)
         end

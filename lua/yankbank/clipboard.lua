@@ -2,7 +2,7 @@
 local M = {}
 
 -- Function to add yanked text to table
-function M.add_yank(yanks, text, max_entries)
+function M.add_yank(yanks, reg_types, text, reg_type, max_entries)
     -- avoid adding empty strings
     if text ~= "" and text ~= " " and text ~= "\n" then
         -- do not update with duplicate values
@@ -12,14 +12,16 @@ function M.add_yank(yanks, text, max_entries)
             end
         end
         table.insert(yanks, 1, text)
+        table.insert(reg_types, 1, reg_type)
         if #yanks > max_entries then
             table.remove(yanks)
+            table.remove(reg_types)
         end
     end
 end
 
 -- autocommand to listen for yank events
-function M.setup_yank_autocmd(yanks, max_entries)
+function M.setup_yank_autocmd(yanks, reg_types, max_entries)
     vim.api.nvim_create_autocmd("TextYankPost", {
         callback = function()
             -- TODO: this function can be expanded to incorporate other registers
@@ -30,6 +32,7 @@ function M.setup_yank_autocmd(yanks, max_entries)
 
             -- get register information
             local rn = vim.v.event.regname
+            local reg_type = vim.fn.getregtype('"')
 
             -- check changes wwere made to default register
             if vim.v.event.regname == "" then
@@ -40,7 +43,7 @@ function M.setup_yank_autocmd(yanks, max_entries)
                     return
                 end
 
-                M.add_yank(yanks, yanked_text, max_entries)
+                M.add_yank(yanks, reg_types, yanked_text, reg_type, max_entries)
             end
         end,
     })
