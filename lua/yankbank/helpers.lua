@@ -2,6 +2,7 @@
 local M = {}
 
 -- navigate to the next numbered item
+---@param steps integer
 function M.next_numbered_item(steps)
     steps = steps or 1 -- Default to 1 if no steps are provided
     local current_line = vim.api.nvim_win_get_cursor(0)[1]
@@ -24,6 +25,7 @@ function M.next_numbered_item(steps)
 end
 
 -- navigate to the previous numbered item
+---@param steps integer
 function M.prev_numbered_item(steps)
     steps = steps or 1 -- Default to 1 if no steps are provided
     local current_line = vim.api.nvim_win_get_cursor(0)[1]
@@ -43,6 +45,8 @@ function M.prev_numbered_item(steps)
 end
 
 -- customized paste function that functions like 'p'
+---@param text string
+---@param reg_type string
 function M.smart_paste(text, reg_type)
     -- convert text string to string list
     local lines = {}

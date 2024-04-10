@@ -2,6 +2,9 @@
 local M = {}
 
 -- reformat yanks table for popup
+---@param yanks table
+---@param sep string
+---@return table, table
 function M.get_display_lines(yanks, sep)
     local display_lines = {}
     local line_yank_map = {}

@@ -11,7 +11,7 @@ Choosing an entry from the menu (by hitting enter) will paste it into the curren
 
 ### Screenshots
 
-![YankBank popup window](assets/screenshot-1.png)
+<!-- ![YankBank popup window](assets/screenshot-1.png) -->
 
 ![YankBank popup window zoomed](assets/screenshot-2.png)
 

@@ -1,4 +1,4 @@
-name: YankBank CI
+name: Run formatter and linter
 
 on:
   pull_request:

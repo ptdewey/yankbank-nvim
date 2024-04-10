@@ -12,6 +12,7 @@ local max_entries = 10
 local sep = "-----"
 
 -- wrapper function for main plugin functionality
+---@param opts table|nil
 local function show_yank_bank(opts)
     -- Parse command arguments directly if args are provided as a string
     opts = opts or {}
@@ -32,6 +33,7 @@ local function show_yank_bank(opts)
 end
 
 -- plugin setup
+---@param opts table|nil
 function M.setup(opts)
     opts = opts or {}
 
