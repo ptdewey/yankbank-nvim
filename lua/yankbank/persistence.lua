@@ -15,7 +15,10 @@ function M.enable_persistence(yanks, opts)
     elseif opts.method == "file" then
         -- TODO:
         require("persistence.file").setup_persistence(
-            yanks, opts.persist_file, opts.max_entries)
+            yanks,
+            opts.persist_file,
+            opts.max_entries
+        )
     elseif opts.method == "sqlite" then
         -- TODO:
         print("sqlite persistence not yet implemented.")

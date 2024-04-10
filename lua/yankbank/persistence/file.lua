@@ -9,7 +9,9 @@ local n_entries = 0
 ---@return boolean
 local function file_exists(file)
     local f = io.open(file, "rb")
-    if f then f:close() end
+    if f then
+        f:close()
+    end
     return f ~= nil
 end
 
@@ -17,10 +19,12 @@ end
 ---@param file string: file path
 ---@return table
 local function read_lines(file)
-    if not file_exists(file) then return {} end
+    if not file_exists(file) then
+        return {}
+    end
     local lines = {}
     for line in io.lines(file) do
-        lines[#lines+1] = line
+        lines[#lines + 1] = line
     end
     return lines
 end
@@ -43,7 +47,8 @@ end
 ---@param line string: line from file being checked
 ---@return table|nil
 local function check_for_entry(line)
-    local i, l, ft, rt = string.match(line, "<YANKBANK_ENTRY:(%d+),(%d+),(%a+),(%a+)>")
+    local i, l, ft, rt =
+        string.match(line, "<YANKBANK_ENTRY:(%d+),(%d+),(%a+),(%a+)>")
     if i then
         return {
             index = tonumber(i),
@@ -134,6 +139,6 @@ local yanks = {}
 print(M.setup_persistence(yanks, "test.txt", 10))
 yanks = {}
 print(M.setup_persistence(yanks, "test1.txt", 10))
-
+print(n_entries)
 
 return M
