@@ -20,14 +20,11 @@ end
 ---@param file string: file path
 ---@return table
 local function read_lines(file)
-    if not file_exists(file) then
-        return {}
-    end
-    local lines = {}
     local f, err = io.open(file)
     if not f then
         error("Error opening file: " .. err)
     end
+    local lines = {}
     for line in f:lines() do
         lines[#lines + 1] = line
     end
@@ -53,13 +50,12 @@ end
 ---@param line string: line from file being checked
 ---@return table|nil
 local function check_for_entry(line)
-    local i, l, ft, rt =
-        string.match(line, "<YANKBANK_ENTRY:(%d+),(%d+),(%a+),(%a+)>")
+    local i, l, rt =
+        string.match(line, "<YANKBANK_ENTRY:(%d+),(%d+),(%a+)>")
     if i then
         return {
             index = tonumber(i),
             length = tonumber(l),
-            file_type = ft,
             reg_type = rt,
         }
     end
@@ -85,16 +81,15 @@ local function remove_last_entry(file)
     if not f then
         error("Could not open file for reading: " .. err)
     end
+    -- FIX: extra newline on entries inserted after removal
 
     -- read lines from file until matching entry is found
     local lines = {}
-    -- TODO: does this for loop work?
     for line in f:lines() do
-        print(line)
         if
             string.match(
                 line,
-                "<YANKBANK_ENTRY:" .. n_entries .. ",%d+,%a+,%a+>"
+                "<YANKBANK_ENTRY:" .. n_entries .. ",%d+,%a+>"
             )
         then
             n_entries = n_entries - 1
@@ -112,11 +107,13 @@ local function remove_last_entry(file)
         error("Could not open file for writing: " .. err)
     end
     for i = 1, #lines do
-        f:write(lines[i])
+        -- TODO: check if newline is necessary for table
+        f:write(lines[i] .. "\n")
     end
     f:close()
 end
 
+-- TODO: docs or remove function
 local function open_file(file, mode)
     local f, err = io.open(file, mode)
     if not f then
@@ -137,44 +134,48 @@ local function add_to_bankfile(file, entry, reg_type)
     end
     n_entries = n_entries + 1
 
-    -- local f, err = io.open(file, "w")
     local lines = read_lines(file)
-    print(vim.inspect(lines))
     local f = open_file(file, "w+")
-    -- BUG: issues around here surrounding newline behavior
-    -- - definintely an issue adding, only appears after inserting first entry
+
+    -- add list header
     f:write("<YANKBANK_LIST:" .. n_entries .. ">\n")
-    for i = 2, #lines do
-        print(i)
-        f:write(lines[i] .. "\n")
-        print(lines[i])
-    end
 
     -- write entry header
+    -- FIX: #entry doesn't match number of lines when it is string (number of chars instead of lines)
     f:write(
-        "<YANKBANK_ENTRY:"
-            .. n_entries
-            .. ","
-            .. #entry
-            .. ",nil,"
-            .. reg_type
-            .. ">\n"
+        "<YANKBANK_ENTRY:1,"
+        .. #entry
+        .. ","
+        .. reg_type
+        .. ">\n"
     )
-
-    -- convert string entry to table
+    -- write entry
     if type(entry) == "string" then
-        print(entry)
-        -- local text = entry
-        -- entry = {}
-        -- for line in text:gmatch("[^\r\n]+") do
-        --     table.insert(entry, line)
-        -- end
-        f:write(entry .. "\n")
-        return
+        f:write(entry)
+    else
+        for i = 1, #entry do
+            -- TODO: check if newline is necessary for table
+            f:write(entry[i] .. "\n")
+        end
     end
 
-    for i = 1, #entry do
-        f:write(entry[i])
+    -- write remaining lines
+    for i = 2, #lines do
+        local n, l, rt = string.match(
+            lines[i],
+            "<YANKBANK_ENTRY:(%d+),(%d+),(%a+)>"
+        )
+        if n then
+            lines[i] = "<YANKBANK_ENTRY:"
+            .. n + 1
+            .. ","
+            .. l
+            .. ","
+            .. rt
+            .. ">"
+        end
+        -- TODO: check headers
+        f:write(lines[i] .. "\n")
     end
 
     f:close()
@@ -202,7 +203,6 @@ local function populate_yankbank(file, max_entries, yanks, reg_types)
             if res.index < max_entries then
                 yanks[#yanks + 1] = entry
                 reg_types[#reg_types + 1] = res.reg_type
-                -- NOTE: ^ should I use table.insert instead? (would allow inserting at specific position)
             end
             -- skip lines that were added to entries
             i = i + res.length
@@ -240,17 +240,17 @@ end
 local yanks = {}
 local reg_types = {}
 M.setup_persistence("test.txt", 10, yanks, reg_types)
-print(vim.inspect(yanks))
-print(vim.inspect(reg_types))
+-- print(vim.inspect(yanks))
+-- print(vim.inspect(reg_types))
 yanks = {}
 reg_types = {}
-print(vim.inspect(yanks))
-print(vim.inspect(reg_types))
+-- print(vim.inspect(yanks))
+-- print(vim.inspect(reg_types))
 M.setup_persistence("test1.txt", 10, yanks, reg_types)
 m_entries = 10
-add_to_bankfile("test1.txt", "text", "v")
--- BUG: this isnt added to the testing file, file i/o might be too slow
-add_to_bankfile("test1.txt", "text1", "V")
+add_to_bankfile("test1.txt", "text11", "v")
+os.execute("sleep .1")
+-- add_to_bankfile("test1.txt", "text10", "V")
 -- remove_last_entry("test1.txt")
 
 return M
