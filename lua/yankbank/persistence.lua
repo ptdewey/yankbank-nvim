@@ -16,12 +16,12 @@ function M.enable_persistence(yanks, opts)
         -- TODO:
         require("persistence.file").setup_persistence(
             yanks,
-            opts.persist_file,
+            opts.persist_path,
             opts.max_entries
         )
     elseif opts.method == "sqlite" then
         -- TODO:
-        print("sqlite persistence not yet implemented.")
+        require("persistence.sql").init_db(yanks, opts.persist_path)
     end
 end
 

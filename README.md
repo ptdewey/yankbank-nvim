@@ -54,7 +54,8 @@ The setup function also supports taking in a table of options:
 | keymaps.yank | string | `"yy"` |
 | keymaps.close | table of strings | `{ "<Esc>", "<C-c>", "q" }` |
 | num_behavior | string defining jump behavior "prefix" or "jump" | `"prefix"` |
-
+| persist_type | string defining persistence type "sql" or "file" | `"sql"` | 
+| persist_path | string defining path for persistence file | "/tmp/yankbank.db" |
 
 If no separator is desired, pass in an empty string for sep:
 ```lua
@@ -67,6 +68,8 @@ If no separator is desired, pass in an empty string for sep:
                 navigation_prev = "k",
             },
             num_behavior = "prefix",
+            persist_type = "sql",
+            persist_path = "/tmp/yankbank.db",
         })
     end,
 ```
