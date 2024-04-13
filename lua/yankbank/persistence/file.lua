@@ -50,7 +50,8 @@ end
 ---@param line string: line from file being checked
 ---@return table|nil
 local function check_for_entry(line)
-    local i, l, rt = string.match(line, "<YANKBANK_ENTRY:(%d+),(%d+),(%a+)>")
+    local i, l, rt =
+        string.match(line, "<YANKBANK_ENTRY:(%d+),(%d+),(%a+)>")
     if i then
         return {
             index = tonumber(i),
@@ -86,7 +87,10 @@ local function remove_last_entry(file)
     local lines = {}
     for line in f:lines() do
         if
-            string.match(line, "<YANKBANK_ENTRY:" .. n_entries .. ",%d+,%a+>")
+            string.match(
+                line,
+                "<YANKBANK_ENTRY:" .. n_entries .. ",%d+,%a+>"
+            )
         then
             n_entries = n_entries - 1
             lines[1] = "<YANKBANK_LIST:" .. n_entries .. ">\n"
@@ -138,7 +142,13 @@ local function add_to_bankfile(file, entry, reg_type)
 
     -- write entry header
     -- FIX: #entry doesn't match number of lines when it is string (number of chars instead of lines)
-    f:write("<YANKBANK_ENTRY:1," .. #entry .. "," .. reg_type .. ">\n")
+    f:write(
+        "<YANKBANK_ENTRY:1,"
+        .. #entry
+        .. ","
+        .. reg_type
+        .. ">\n"
+    )
     -- write entry
     if type(entry) == "string" then
         f:write(entry)
@@ -151,16 +161,18 @@ local function add_to_bankfile(file, entry, reg_type)
 
     -- write remaining lines
     for i = 2, #lines do
-        local n, l, rt =
-            string.match(lines[i], "<YANKBANK_ENTRY:(%d+),(%d+),(%a+)>")
+        local n, l, rt = string.match(
+            lines[i],
+            "<YANKBANK_ENTRY:(%d+),(%d+),(%a+)>"
+        )
         if n then
             lines[i] = "<YANKBANK_ENTRY:"
-                .. n + 1
-                .. ","
-                .. l
-                .. ","
-                .. rt
-                .. ">"
+            .. n + 1
+            .. ","
+            .. l
+            .. ","
+            .. rt
+            .. ">"
         end
         -- TODO: check headers
         f:write(lines[i] .. "\n")
