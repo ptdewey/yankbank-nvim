@@ -24,6 +24,9 @@ Lazy:
 ```lua
 {
     "ptdewey/yankbank-nvim",
+    
+    dependencies = "kkharji/sqlite.lua",
+    
     config = function()
         require('yankbank').setup()
     end,
@@ -34,6 +37,7 @@ Packer:
 ```lua
 use {
     'ptdewey/yankbank-nvim',
+    requires = {'kkharji/sqlite.lua'}
     config = function()
         require('yankbank').setup()
     end,
