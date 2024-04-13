@@ -10,16 +10,16 @@ local M = {}
 --   - might need plenary for the asynchronous r/w accesses
 
 function M.enable_persistence(yanks, opts)
-    if not opts.method then
+    if not opts.persist_type then
         return
-    elseif opts.method == "file" then
+    elseif opts.persist_type == "file" then
         -- TODO:
         require("persistence.file").setup_persistence(
             yanks,
             opts.persist_path,
             opts.max_entries
         )
-    elseif opts.method == "sqlite" then
+    elseif opts.persist_type == "sqlite" then
         -- TODO:
         require("persistence.sql").init_db(yanks, opts.persist_path)
     end
