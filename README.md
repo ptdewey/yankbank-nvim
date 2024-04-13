@@ -72,7 +72,7 @@ If no separator is desired, pass in an empty string for sep:
                 navigation_prev = "k",
             },
             num_behavior = "prefix",
-            persist_type = "sql",
+            persist_type = "sqlite",
             persist_path = "/tmp/yankbank.db",
         })
     end,
