@@ -1,26 +1,21 @@
 -- clipboard.lua
 local M = {}
 
--- TODO: convert string to table yanks to work better with files
+-- import persistence module
+local persistence = require("yankbank.persistence")
 
 -- Function to add yanked text to table
 ---@param yanks table
 ---@param reg_types table
 ---@param text string
 ---@param reg_type string
----@param max_entries integer
-function M.add_yank(yanks, reg_types, text, reg_type, max_entries)
+---@param opts table
+function M.add_yank(yanks, reg_types, text, reg_type, opts)
     -- avoid adding empty strings
     -- TODO: could block adding single characters here
     if text == "" or text == " " or text == "\n" then
         return
     end
-    print(
-        "yanks: ",
-        vim.inspect(yanks),
-        "| reg_types: ",
-        vim.inspect(reg_types)
-    )
 
     -- do not update with duplicate values
     for _, entry in ipairs(yanks) do
@@ -32,17 +27,20 @@ function M.add_yank(yanks, reg_types, text, reg_type, max_entries)
     -- add entry to bank
     table.insert(yanks, 1, text)
     table.insert(reg_types, 1, reg_type)
-    if #yanks > max_entries then
+    if #yanks > opts.max_entries then
         table.remove(yanks)
         table.remove(reg_types)
     end
+
+    -- add entry to persistent store
+    persistence.add_entry(yanks, reg_types, opts)
 end
 
 -- autocommand to listen for yank events
 ---@param yanks table
 ---@param reg_types table
----@param max_entries integer
-function M.setup_yank_autocmd(yanks, reg_types, max_entries)
+---@param opts table
+function M.setup_yank_autocmd(yanks, reg_types, opts)
     vim.api.nvim_create_autocmd("TextYankPost", {
         callback = function()
             -- get register information
@@ -55,7 +53,7 @@ function M.setup_yank_autocmd(yanks, reg_types, max_entries)
                 if #yanked_text <= 1 then
                     return
                 end
-                M.add_yank(yanks, reg_types, yanked_text, reg_type, max_entries)
+                M.add_yank(yanks, reg_types, yanked_text, reg_type, opts)
             end
         end,
     })

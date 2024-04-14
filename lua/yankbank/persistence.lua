@@ -1,27 +1,43 @@
 -- persistence.lua
-
 local M = {}
 
--- TODO: for file-based persistence:
--- - need system for moving entries around in list
---   - either use tags and search by tag (could be out of order)
---   - or keep list in sorted order (likely more i/o heavy)
--- - store local copy of list in memory, to make accesses to popup quick
---   - might need plenary for the asynchronous r/w accesses
+---comment
+---@param yanks table
+---@param reg_types table
+---@param opts table
+function M.add_entry(yanks, reg_types, opts)
+    if not opts.persist_type then
+        return
+    elseif opts.persist_type == "memory" then
+        return
+    elseif opts.persist_type == "file" then
+        -- TODO:
+    elseif opts.persist_type == "sqlite" then
+    end
+end
 
-function M.enable_persistence(yanks, opts)
+---initialize bank persistence
+---@param yanks table
+---@param reg_types table
+---@param opts table
+function M.setup(yanks, reg_types, opts)
     if not opts.persist_type then
         return
     elseif opts.persist_type == "file" then
         -- TODO:
-        require("persistence.file").setup_persistence(
-            yanks,
+        require("yankbank.persistence.file").setup_persistence(
             opts.persist_path,
-            opts.max_entries
+            opts.max_entries,
+            yanks,
+            reg_types
         )
     elseif opts.persist_type == "sqlite" then
         -- TODO:
-        require("persistence.sql").init_db(yanks, opts.persist_path)
+        require("yankbank.persistence.sql").init_db(
+            yanks,
+            reg_types,
+            opts.persist_path
+        )
     end
 end
 

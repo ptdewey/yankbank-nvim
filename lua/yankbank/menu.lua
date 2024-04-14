@@ -6,21 +6,27 @@ local clipboard = require("yankbank.clipboard")
 local data = require("yankbank.data")
 local helpers = require("yankbank.helpers")
 
--- create new buffer and reformat yank table for ui
-function M.create_and_fill_buffer(yanks, reg_types, max_entries, sep)
+---create new buffer and reformat yank table for ui
+---@param yanks table
+---@param reg_types table
+---@param opts table
+---@return integer?
+---@return table?
+---@return table?
+function M.create_and_fill_buffer(yanks, reg_types, opts)
     -- check the content of the system clipboard register
     -- TODO: this could be replaced with some sort of polling of the + register
     local text = vim.fn.getreg("+")
     local most_recent_yank = yanks[1] or ""
     if text ~= most_recent_yank then
         local reg_type = vim.fn.getregtype("+")
-        clipboard.add_yank(yanks, reg_types, text, reg_type, max_entries)
+        clipboard.add_yank(yanks, reg_types, text, reg_type, opts)
     end
 
     -- stop if yank table is empty
     if #yanks == 0 then
         print("No yanks to show.")
-        return
+        return nil, nil, nil
     end
 
     -- create new buffer
@@ -30,7 +36,7 @@ function M.create_and_fill_buffer(yanks, reg_types, max_entries, sep)
     local current_filetype = vim.bo.filetype
     vim.api.nvim_set_option_value("filetype", current_filetype, { buf = bufnr })
 
-    local display_lines, line_yank_map = data.get_display_lines(yanks, sep)
+    local display_lines, line_yank_map = data.get_display_lines(yanks, opts.sep)
 
     -- replace current buffer contents with updated table
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, display_lines)
@@ -38,7 +44,10 @@ function M.create_and_fill_buffer(yanks, reg_types, max_entries, sep)
     return bufnr, display_lines, line_yank_map
 end
 
--- Calculate size and create popup window from bufnr
+---Calculate size and create popup window from bufnr
+---@param bufnr integer
+---@param display_lines table
+---@return integer
 function M.open_window(bufnr, display_lines)
     -- set maximum window width based on number of lines
     local max_width = 0
@@ -81,7 +90,13 @@ function M.open_window(bufnr, display_lines)
     return win_id
 end
 
--- Set key mappings for the popup window
+---Set key mappings for the popup window
+---@param win_id integer
+---@param bufnr integer
+---@param yanks table
+---@param reg_types table
+---@param line_yank_map table
+---@param opts table
 function M.set_keymaps(win_id, bufnr, yanks, reg_types, line_yank_map, opts)
     -- Key mappings for selection and closing the popup
     local map_opts = { noremap = true, silent = true, buffer = bufnr }

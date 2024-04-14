@@ -8,46 +8,42 @@ local clipboard = require("yankbank.clipboard")
 -- initialize yanks tables
 local yanks = {}
 local reg_types = {}
-local max_entries = 10
-local sep = "-----"
-local persist_type = "file"
-local persist_path = "/tmp/yankbank.txt"
+
+local plugin_path = debug.getinfo(1).source:sub(2):match("(.*/).*/.*/") or "./"
+
+-- default plugin options
+local default_opts = {
+    max_entries = 10,
+    sep = "-----",
+    persist_type = "memory",
+    persist_path = plugin_path .. "bank.txt",
+}
 
 -- wrapper function for main plugin functionality
----@param opts table|nil
+---@param opts table
 local function show_yank_bank(opts)
     -- Parse command arguments directly if args are provided as a string
-    opts = opts or {}
-
-    -- Fallback to defaults if necessary
-    local max_entries_opt = opts.max_entries or max_entries
-    local sep_opt = opts.sep or sep
-
-    opts.keymaps = opts.keymaps or {}
 
     local bufnr, display_lines, line_yank_map =
-        menu.create_and_fill_buffer(yanks, reg_types, max_entries_opt, sep_opt)
+        menu.create_and_fill_buffer(yanks, reg_types, opts)
+
     -- handle empty bank case
-    if not bufnr then
+    if not bufnr or not display_lines or not line_yank_map then
         return
     end
+
     local win_id = menu.open_window(bufnr, display_lines)
     menu.set_keymaps(win_id, bufnr, yanks, reg_types, line_yank_map, opts)
 end
 
 -- plugin setup
----@param opts table|nil
+---@param opts table?
 function M.setup(opts)
-    opts = opts or {}
-
-    -- parse opts
-    max_entries = opts.max_entries or max_entries
-
-    persist_type = opts.persist_type or persist_type
-    persist_path = opts.persist_path or persist_path
+    -- merge opts with default options table
+    opts = vim.tbl_deep_extend("force", default_opts, opts or {})
 
     -- create clipboard autocmds
-    clipboard.setup_yank_autocmd(yanks, reg_types, max_entries)
+    clipboard.setup_yank_autocmd(yanks, reg_types, opts)
 
     -- Create user command
     vim.api.nvim_create_user_command("YankBank", function()
