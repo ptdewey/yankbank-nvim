@@ -18,6 +18,7 @@ function M.add_yank(yanks, reg_types, text, reg_type, opts)
     end
 
     -- do not update with duplicate values
+    -- BUG: there seems to be some issues here when trying to add on pipup open
     for _, entry in ipairs(yanks) do
         if entry == text then
             return
@@ -33,8 +34,10 @@ function M.add_yank(yanks, reg_types, text, reg_type, opts)
     end
 
     -- add entry to persistent store
-    persistence.add_entry(yanks, reg_types, opts)
+    persistence.add_entry(text, reg_type, opts)
 end
+
+-- TODO: autocmd for focus gained (check system clipboard?)
 
 -- autocommand to listen for yank events
 ---@param yanks table
@@ -45,10 +48,11 @@ function M.setup_yank_autocmd(yanks, reg_types, opts)
         callback = function()
             -- get register information
             local rn = vim.v.event.regname
-            local reg_type = vim.fn.getregtype("+")
+            -- local reg_type = vim.fn.getregtype("+")
 
             -- check changes wwere made to default register
-            if vim.v.event.regname == "" then
+            if vim.v.event.regname == "" or vim.v.event.regname == "+" then
+                local reg_type = vim.fn.getregtype(rn)
                 local yanked_text = vim.fn.getreg(rn)
                 if #yanked_text <= 1 then
                     return

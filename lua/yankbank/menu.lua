@@ -16,12 +16,10 @@ local helpers = require("yankbank.helpers")
 function M.create_and_fill_buffer(yanks, reg_types, opts)
     -- check the content of the system clipboard register
     -- TODO: this could be replaced with some sort of polling of the + register
-    local text = vim.fn.getreg("+")
-    local most_recent_yank = yanks[1] or ""
-    if text ~= most_recent_yank then
-        local reg_type = vim.fn.getregtype("+")
-        clipboard.add_yank(yanks, reg_types, text, reg_type, opts)
-    end
+    -- local text = vim.fn.getreg("+")
+    -- local most_recent_yank = yanks[1] or ""
+    -- local reg_type = vim.fn.getregtype("+")
+    -- clipboard.add_yank(yanks, reg_types, text, reg_type, opts)
 
     -- stop if yank table is empty
     if #yanks == 0 then
@@ -36,6 +34,7 @@ function M.create_and_fill_buffer(yanks, reg_types, opts)
     local current_filetype = vim.bo.filetype
     vim.api.nvim_set_option_value("filetype", current_filetype, { buf = bufnr })
 
+    -- TODO: need to update yanks from bank file before get_display_lines
     local display_lines, line_yank_map = data.get_display_lines(yanks, opts.sep)
 
     -- replace current buffer contents with updated table

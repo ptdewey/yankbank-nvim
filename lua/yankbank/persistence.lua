@@ -1,18 +1,19 @@
 -- persistence.lua
 local M = {}
 
----comment
----@param yanks table
----@param reg_types table
+local persistence = {}
+
+---add entry from bank to
+---@param entry string|table
+---@param reg_type string
 ---@param opts table
-function M.add_entry(yanks, reg_types, opts)
+function M.add_entry(entry, reg_type, opts)
     if not opts.persist_type then
         return
-    elseif opts.persist_type == "memory" then
-        return
     elseif opts.persist_type == "file" then
-        -- TODO:
+        persistence.add_to_bankfile(opts.persist_path, entry, reg_type)
     elseif opts.persist_type == "sqlite" then
+        -- TODO: implement sqlite persist
     end
 end
 
@@ -20,12 +21,14 @@ end
 ---@param yanks table
 ---@param reg_types table
 ---@param opts table
+---@return table
+---@return table
 function M.setup(yanks, reg_types, opts)
     if not opts.persist_type then
-        return
+        return {}, {}
     elseif opts.persist_type == "file" then
-        -- TODO:
-        require("yankbank.persistence.file").setup_persistence(
+        persistence = require("yankbank.persistence.file")
+        return persistence.setup_persistence(
             opts.persist_path,
             opts.max_entries,
             yanks,
@@ -33,12 +36,11 @@ function M.setup(yanks, reg_types, opts)
         )
     elseif opts.persist_type == "sqlite" then
         -- TODO:
-        require("yankbank.persistence.sql").init_db(
-            yanks,
-            reg_types,
-            opts.persist_path
-        )
+        persistence = require("yankbank.persistence.sql")
+        persistence.init_db(yanks, reg_types, opts.persist_path)
     end
+
+    return {}, {}
 end
 
 return M

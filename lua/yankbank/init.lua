@@ -4,6 +4,7 @@ local M = {}
 -- local imports
 local menu = require("yankbank.menu")
 local clipboard = require("yankbank.clipboard")
+local persistence = require("yankbank.persistence")
 
 -- initialize yanks tables
 local yanks = {}
@@ -44,6 +45,11 @@ function M.setup(opts)
 
     -- create clipboard autocmds
     clipboard.setup_yank_autocmd(yanks, reg_types, opts)
+
+    -- enable persistence based on opts
+    yanks, reg_types = persistence.setup(yanks, reg_types, opts)
+    -- print(vim.inspect(yanks))
+    -- print(vim.inspect(reg_types))
 
     -- Create user command
     vim.api.nvim_create_user_command("YankBank", function()
