@@ -4,6 +4,7 @@ local M = {}
 -- local imports
 local menu = require("yankbank.menu")
 local clipboard = require("yankbank.clipboard")
+local persistence = require("yankbank.persistence")
 
 -- initialize yanks tables
 local yanks = {}
@@ -42,6 +43,9 @@ function M.setup(opts)
     -- merge opts with default options table
     opts = vim.tbl_deep_extend("force", default_opts, opts or {})
 
+    -- enable persistence based on opts
+    yanks, reg_types = persistence.setup(yanks, reg_types, opts)
+  
     -- create clipboard autocmds
     clipboard.setup_yank_autocmd(yanks, reg_types, opts)
 
