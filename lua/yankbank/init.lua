@@ -10,6 +10,9 @@ local persistence = require("yankbank.persistence")
 local yanks = {}
 local reg_types = {}
 
+YANKS = {}
+REG_TYPES = {}
+
 local plugin_path = debug.getinfo(1).source:sub(2):match("(.*/).*/.*/") or "./"
 
 -- default plugin options
@@ -23,8 +26,7 @@ local default_opts = {
 -- wrapper function for main plugin functionality
 ---@param opts table
 local function show_yank_bank(opts)
-    -- Parse command arguments directly if args are provided as a string
-
+    -- create and fill buffer
     local bufnr, display_lines, line_yank_map =
         menu.create_and_fill_buffer(yanks, reg_types, opts)
 
@@ -43,13 +45,12 @@ function M.setup(opts)
     -- merge opts with default options table
     opts = vim.tbl_deep_extend("force", default_opts, opts or {})
 
+    -- enable persistence based on opts
+    -- (needs to be called before autocmd setup)
+    persistence.setup(yanks, reg_types, opts)
+
     -- create clipboard autocmds
     clipboard.setup_yank_autocmd(yanks, reg_types, opts)
-
-    -- enable persistence based on opts
-    yanks, reg_types = persistence.setup(yanks, reg_types, opts)
-    -- print(vim.inspect(yanks))
-    -- print(vim.inspect(reg_types))
 
     -- Create user command
     vim.api.nvim_create_user_command("YankBank", function()
