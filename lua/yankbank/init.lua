@@ -48,6 +48,7 @@ function M.setup(opts)
     -- enable persistence based on opts
     -- (needs to be called before autocmd setup)
     persistence.setup(yanks, reg_types, opts)
+    -- yanks, reg_types = persistence.setup(yanks, reg_types, opts)
 
     -- create clipboard autocmds
     clipboard.setup_yank_autocmd(yanks, reg_types, opts)
