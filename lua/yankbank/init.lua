@@ -43,13 +43,11 @@ function M.setup(opts)
     -- merge opts with default options table
     opts = vim.tbl_deep_extend("force", default_opts, opts or {})
 
-    -- create clipboard autocmds
-    clipboard.setup_yank_autocmd(yanks, reg_types, opts)
-
     -- enable persistence based on opts
     yanks, reg_types = persistence.setup(yanks, reg_types, opts)
-    -- print(vim.inspect(yanks))
-    -- print(vim.inspect(reg_types))
+  
+    -- create clipboard autocmds
+    clipboard.setup_yank_autocmd(yanks, reg_types, opts)
 
     -- Create user command
     vim.api.nvim_create_user_command("YankBank", function()
