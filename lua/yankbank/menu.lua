@@ -173,7 +173,7 @@ function M.set_keymaps(win_id, bufnr, yanks, reg_types, line_yank_map, opts)
             local text = yanks[yankIndex]
             -- NOTE: possibly change this to '"' if not using system clipboard
             -- - make this an option
-            vim.fn.setreg("+", text)
+            vim.fn.setreg("@", text)
             vim.api.nvim_win_close(win_id, true)
         end
     end, { buffer = bufnr })
