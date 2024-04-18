@@ -54,14 +54,11 @@ The setup function also supports taking in a table of options:
 | keymaps.yank | string | `"yy"` |
 | keymaps.close | table of strings | `{ "<Esc>", "<C-c>", "q" }` |
 | num_behavior | string defining jump behavior "prefix" or "jump" | `"prefix"` |
-<<<<<<< HEAD
-| persist_type | string defining persistence type "memory", "sql", or "file" | `"memory"` | 
-| persist_path | string defining path for persistence file/db file | `"~/.local/share/nvim/lazy/yankbank-nvim"` (if installed with lazy) |
-=======
 | registers | table container for register overrides | `{ }` |
 | registers.yank_register | default register to yank from popup to | `"+"` |
+| persist_type | string defining persistence type "memory", "sql", or "file" | `"memory"` |
+| persist_path | string defining path for persistence file/db file | `"~/.local/share/nvim/lazy/yankbank-nvim"` (if installed with lazy) |
 
->>>>>>> origin/main
 
 If no separator is desired, pass in an empty string for sep:
 ```lua

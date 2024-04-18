@@ -109,8 +109,16 @@ function M.set_keymaps(win_id, bufnr, yanks, reg_types, line_yank_map, opts)
         close = { "<Esc>", "<C-c>", "q" }, -- TODO: issues might arise passing non-table single value for this
     }
 
+    -- define default yank register
+    local default_registers = {
+        yank_register = "+",
+    }
+
     -- merge default and options keymap tables
     local k = vim.tbl_deep_extend("force", default_keymaps, opts.keymaps or {})
+
+    -- merge default and options keymap tables
+    opts.registers = vim.tbl_deep_extend("force", default_registers, opts.registers or {})
 
     -- check table for number behavior option (prefix or jump, default to prefix)
     opts.num_behavior = opts.num_behavior or "prefix"
@@ -187,7 +195,7 @@ function M.set_keymaps(win_id, bufnr, yanks, reg_types, line_yank_map, opts)
             local text = yanks[yankIndex]
             -- NOTE: possibly change this to '"' if not using system clipboard
             -- - make this an option
-            vim.fn.setreg("+", text)
+            vim.fn.setreg(opts.registers.yank_register, text)
             vim.api.nvim_win_close(win_id, true)
         end
     end, { buffer = bufnr })
