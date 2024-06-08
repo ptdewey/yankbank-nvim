@@ -11,7 +11,7 @@ Choosing an entry from the menu (by hitting enter) will paste it into the curren
 
 ### Screenshots
 
-![YankBank popup window](assets/screenshot-1.png)
+<!-- ![YankBank popup window](assets/screenshot-1.png) -->
 
 ![YankBank popup window zoomed](assets/screenshot-2.png)
 
@@ -33,7 +33,7 @@ Lazy:
 Packer:
 ```lua
 use {
-    'ptdewey/yankbank-nvim',
+    "ptdewey/yankbank-nvim",
     config = function()
         require('yankbank').setup()
     end,
@@ -56,6 +56,8 @@ The setup function also supports taking in a table of options:
 | num_behavior | string defining jump behavior "prefix" or "jump" | `"prefix"` |
 | registers | table container for register overrides | `{ }` |
 | registers.yank_register | default register to yank from popup to | `"+"` |
+| persist_type | string defining persistence type "memory", "sql", or "file" | `"memory"` |
+| persist_path | string defining path for persistence file/db file | `"~/.local/share/nvim/lazy/yankbank-nvim"` (if installed with lazy) |
 
 
 If no separator is desired, pass in an empty string for sep:
@@ -69,15 +71,36 @@ If no separator is desired, pass in an empty string for sep:
                 navigation_prev = "k",
             },
             num_behavior = "prefix",
+            persist_type = "memory",
         })
     end,
 ```
+
+
 
 The 'num_behavior' option defines in-popup navigation behavior when hitting number keys.
 - `num_behavior = "prefix"` works similar to traditional vim navigation with '3j' moving down 3 entries in the bank.
 - `num_behavior = "jump"` jumps to entry matching the pressed number key (i.e. '3' jumps to entry 3)
     - Note: If 'max_entries' is a two-digit number, there will be a delay upon pressing numbers that prefix a valid entry.
 
+#### Persistence
+If persistence between sessions is desired, there is a choice between a sqlite database and a file.
+Both file and sqlite will (by default) create a persistent store for recent yanks in the plugin root directory.
+File-based persistence requires no added dependencies, but to utilize sqlite, `"kkharji/sqlite.lua"` must be added as a dependency in your config:
+
+```lua
+-- lazy
+return {
+    "ptdewey/yankbank-nvim",
+    dependencies = "kkharji/sqlite.lua",
+    config = function()
+        require('yankbank').setup({
+            persist_type = "sqlite"
+            persist_path = "/tmp/yankbank.db",
+        })
+    end,
+}
+```
 
 ## Usage
 
@@ -92,8 +115,6 @@ vim.keymap.set("n", "<leader>y", "<cmd>YankBank<CR>", { noremap = true })
 
 
 ## Potential Improvements
-
-- Persistence between sessions (through either sqlite database or just a file)
 - Polling on unnamedplus register to populate bank in more intuitive manner (could be enabled as option)
 - nvim-cmp integration
 - fzf integration
