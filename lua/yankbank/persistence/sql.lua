@@ -2,14 +2,15 @@ local M = {}
 
 local sqlite = require("sqlite.db")
 
--- @TODO: yank primary key?
+-- TODO: yank primary key?
 -- integer tracking for table position not controlled by sqlite3
 
--- create db table for yanks, PK is row id and will increment automatically
+---create db table for yanks, PK is row id and will increment automatically
 -- @param existing_yanks table
+-- @param reg_types table
 -- @param uri string
 -- @return sqlite_db
-function M.init_db(existing_yanks, uri)
+function M.init_db(existing_yanks, reg_types, uri)
     local db = sqlite({
         uri = uri,
     })
@@ -23,10 +24,12 @@ function M.init_db(existing_yanks, uri)
     })
     local status = db:status()
 
+    db:insert("yanks", { yank_content = existing_yanks, reg_type = reg_types })
+
     if status ~= nil then
         print("yankbank db error: ", status.code)
     end
-    -- @TODO: add functionality to add existing yanks to the db table "yanks"
+    -- TODO: add functionality to add existing yanks to the db table "yanks"
     db:close()
     return db
 end
@@ -68,17 +71,20 @@ end
 
 function M.remove_by_yank_index(db, index)
     db:open()
-    local ret = db:select("yanks", { order_by = { asc = "id" }})
+    local ret = db:select("yanks", { order_by = { asc = "id" } })
     local id_to_remove = ret[index].id
     local del = db:delete("yanks", { where = { id = id_to_remove } })
+    if del ~= nil then
+        return del
+    end
     local status = db:status()
     db:close()
     return status == nil
 end
 
 -- test function for db operations
-local function test_db()
-    local test_db = M.init_db({}, "/tmp/test_yankbank.db")
+local function test_database()
+    local test_db = M.init_db({}, {}, "/tmp/test_yankbank.db")
     -- print(vim.inspect(test_db))
     M.add_to_yanktable(test_db, "Sample Yank", "reg")
     print(vim.inspect(M.get_yanks(test_db)))
@@ -91,6 +97,6 @@ local function test_db()
     print(vim.inspect(M.get_yanks(test_db)))
 end
 
--- test_db()
+test_database()
 
 return M

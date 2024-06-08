@@ -2,7 +2,7 @@
 local M = {}
 
 -- import clipboard functions
-local clipboard = require("yankbank.clipboard")
+-- local clipboard = require("yankbank.clipboard")
 local data = require("yankbank.data")
 local helpers = require("yankbank.helpers")
 
@@ -22,7 +22,7 @@ function M.create_and_fill_buffer(yanks, reg_types, opts)
     -- clipboard.add_yank(yanks, reg_types, text, reg_type, opts)
 
     -- stop if yank table is empty
-    if #yanks == 0 then
+    if #yanks == 0 and #reg_types then
         print("No yanks to show.")
         return nil, nil, nil
     end
@@ -118,7 +118,8 @@ function M.set_keymaps(win_id, bufnr, yanks, reg_types, line_yank_map, opts)
     local k = vim.tbl_deep_extend("force", default_keymaps, opts.keymaps or {})
 
     -- merge default and options keymap tables
-    opts.registers = vim.tbl_deep_extend("force", default_registers, opts.registers or {})
+    opts.registers =
+        vim.tbl_deep_extend("force", default_registers, opts.registers or {})
 
     -- check table for number behavior option (prefix or jump, default to prefix)
     opts.num_behavior = opts.num_behavior or "prefix"

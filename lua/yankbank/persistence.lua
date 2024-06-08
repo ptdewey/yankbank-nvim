@@ -2,6 +2,7 @@
 local M = {}
 
 local persistence = {}
+local db = nil
 
 ---add entry from bank to
 ---@param entry string|table
@@ -13,7 +14,7 @@ function M.add_entry(entry, reg_type, opts)
     elseif opts.persist_type == "file" then
         persistence.add_to_bankfile(opts.persist_path, entry, reg_type)
     elseif opts.persist_type == "sqlite" then
-        -- TODO: implement sqlite persist
+        persistence.add_to_yanktable(db, entry, reg_type)
     end
 end
 
@@ -35,9 +36,9 @@ function M.setup(yanks, reg_types, opts)
             reg_types
         )
     elseif opts.persist_type == "sqlite" then
-        -- TODO:
         persistence = require("yankbank.persistence.sql")
-        persistence.init_db(yanks, reg_types, opts.persist_path)
+        db = persistence.init_db(yanks, reg_types, opts.persist_path)
+        return yanks, reg_types
     end
 
     return {}, {}

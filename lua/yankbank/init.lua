@@ -10,8 +10,8 @@ local persistence = require("yankbank.persistence")
 local yanks = {}
 local reg_types = {}
 
-YANKS = {}
-REG_TYPES = {}
+-- YANKS = {}
+-- REG_TYPES = {}
 
 local plugin_path = debug.getinfo(1).source:sub(2):match("(.*/).*/.*/") or "./"
 
