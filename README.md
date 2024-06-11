@@ -54,6 +54,8 @@ The setup function also supports taking in a table of options:
 | keymaps.yank | string | `"yy"` |
 | keymaps.close | table of strings | `{ "<Esc>", "<C-c>", "q" }` |
 | num_behavior | string defining jump behavior "prefix" or "jump" | `"prefix"` |
+| registers | table container for register overrides | `{ }` |
+| registers.yank_register | default register to yank from popup to | `"+"` |
 
 
 If no separator is desired, pass in an empty string for sep:
