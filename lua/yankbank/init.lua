@@ -39,7 +39,7 @@ function M.setup(opts)
     max_entries = opts.max_entries or max_entries
 
     -- create clipboard autocmds
-    clipboard.setup_yank_autocmd(yanks, reg_types, max_entries)
+    clipboard.setup_yank_autocmd(yanks, reg_types, opts)
 
     -- Create user command
     vim.api.nvim_create_user_command("YankBank", function()

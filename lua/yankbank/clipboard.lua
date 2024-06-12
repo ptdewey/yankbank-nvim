@@ -20,8 +20,10 @@ function M.add_yank(yanks, reg_types, text, reg_type, max_entries)
     end
 end
 
--- autocommand to listen for yank events
-function M.setup_yank_autocmd(yanks, reg_types, max_entries)
+-- set up plugin autocommands
+-- TODO: make augroup
+function M.setup_yank_autocmd(yanks, reg_types, opts)
+    -- autocommand to listen for yank events
     vim.api.nvim_create_autocmd("TextYankPost", {
         callback = function()
             -- TODO: this function can be expanded to incorporate other registers
@@ -34,19 +36,40 @@ function M.setup_yank_autocmd(yanks, reg_types, max_entries)
             local rn = vim.v.event.regname
             local reg_type = vim.fn.getregtype('"')
 
-            -- check changes wwere made to default register
+            -- check if changes were made to default register
             if vim.v.event.regname == "" then
-                local yanked_text = vim.fn.getreg(rn)
+                local yank = vim.fn.getreg(rn)
 
                 -- NOTE: this only blocks adding to list if something else is in plus register
-                if string.len(yanked_text) <= 1 then
+                if string.len(yank) <= 1 then
                     return
                 end
 
-                M.add_yank(yanks, reg_types, yanked_text, reg_type, max_entries)
+                M.add_yank(yanks, reg_types, yank, reg_type, opts.max_entries)
             end
         end,
     })
+
+    -- poll registers when vim is focused (check for new clipboard activity)
+    if opts.focus_gain_poll and opts.focus_gain_poll == true then
+        vim.api.nvim_create_autocmd("FocusGained", {
+            callback = function()
+
+                -- get register information
+                local reg_type = vim.fn.getregtype('+')
+                local yank = vim.fn.getreg('+')
+
+                -- NOTE: do not add yanks of 1 or 0 characters
+                if string.len(yank) <= 1 then
+                    return
+                end
+
+                M.add_yank(yanks, reg_types, yank, reg_type, opts.max_entries)
+            end
+        })
+    end
+
+    -- TODO: focus lost hook?
 end
 
 return M
