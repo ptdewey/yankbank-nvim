@@ -54,10 +54,9 @@ function M.setup_yank_autocmd(yanks, reg_types, opts)
     if opts.focus_gain_poll and opts.focus_gain_poll == true then
         vim.api.nvim_create_autocmd("FocusGained", {
             callback = function()
-
                 -- get register information
-                local reg_type = vim.fn.getregtype('+')
-                local yank = vim.fn.getreg('+')
+                local reg_type = vim.fn.getregtype("+")
+                local yank = vim.fn.getreg("+")
 
                 -- NOTE: do not add yanks of 1 or 0 characters
                 if string.len(yank) <= 1 then
@@ -65,7 +64,7 @@ function M.setup_yank_autocmd(yanks, reg_types, opts)
                 end
 
                 M.add_yank(yanks, reg_types, yank, reg_type, opts.max_entries)
-            end
+            end,
         })
     end
 
