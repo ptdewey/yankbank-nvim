@@ -16,7 +16,7 @@ local default_opts = {
     registers = {
         yank_register = "+",
     },
-    keymaps = { },
+    keymaps = {},
 }
 
 -- wrapper function for main plugin functionality
@@ -25,8 +25,12 @@ local function show_yank_bank(opts)
     opts = opts or default_opts
 
     -- initialize buffer and populate bank
-    local bufnr, display_lines, line_yank_map =
-        menu.create_and_fill_buffer(yanks, reg_types, opts.max_entries, opts.sep)
+    local bufnr, display_lines, line_yank_map = menu.create_and_fill_buffer(
+        yanks,
+        reg_types,
+        opts.max_entries,
+        opts.sep
+    )
 
     -- handle empty bank case
     if not bufnr then

@@ -45,7 +45,13 @@ function M.setup_yank_autocmd(yanks, reg_types, opts)
                 if #yank_text <= 1 then
                     return
                 end
-                M.add_yank(yanks, reg_types, yank_text, reg_type, opts.max_entries)
+                M.add_yank(
+                    yanks,
+                    reg_types,
+                    yank_text,
+                    reg_type,
+                    opts.max_entries
+                )
             end
         end,
     })
@@ -66,7 +72,13 @@ function M.setup_yank_autocmd(yanks, reg_types, opts)
                     return
                 end
 
-                M.add_yank(yanks, reg_types, yank_text, reg_type, opts.max_entries)
+                M.add_yank(
+                    yanks,
+                    reg_types,
+                    yank_text,
+                    reg_type,
+                    opts.max_entries
+                )
             end,
         })
     end
