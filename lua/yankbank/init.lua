@@ -44,11 +44,6 @@ local function show_yank_bank(opts)
     return
 end
 
--- Add a command for Telescope integration
-    vim.api.nvim_create_user_command("TelescopeYankBank", function()
-        require("yankbank.telescope").yankbank(yanks, reg_types)
-    end, { desc = "Show Recent Yanks with Telescope" })
-
 -- plugin setup
 function M.setup(opts)
     opts = opts or default_opts
@@ -61,12 +56,17 @@ function M.setup(opts)
         show_yank_bank(opts)
     end, { desc = "Show Recent Yanks" })
 
+    -- Add a command for Telescope integration
+    vim.api.nvim_create_user_command("TelescopeYankBank", function()
+        require("yankbank.telescope").yankbank(yanks, reg_types)
+    end, { desc = "Show Recent Yanks with Telescope" })
+end
+
 -- Expose yanks and reg_types for external access
 M.yanks = yanks
 M.reg_types = reg_types
 
 return M
-end
 function M.setup(opts)
     opts = opts or default_opts
 
