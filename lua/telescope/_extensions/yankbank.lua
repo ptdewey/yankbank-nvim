@@ -1,15 +1,14 @@
 local telescope = require("telescope")
 local yankbank = require("yankbank.telescope")
 
-return telescope.register_extension {
-    setup = function(ext_config, config)
-        -- access extension config and user config
-    end,
+local has_telescope, telescope = pcall(require, "telescope")
+
+if not has_telescope then
+    error("yankbank-nvim requires nvim-telescope/telescope.nvim")
+end
+
+return telescope.register_extension({
     exports = {
-        yankbank = function()
-            local yanks = require("yankbank.init").yanks
-            local reg_types = require("yankbank.init").reg_types
-            yankbank.yankbank(yanks, reg_types)
-        end,
+        yankbank = require("yankbank.telescope").yankbank,
     },
-}
+})
