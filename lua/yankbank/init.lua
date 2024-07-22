@@ -4,6 +4,7 @@ local M = {}
 -- local imports
 local menu = require("yankbank.menu")
 local clipboard = require("yankbank.clipboard")
+local telescope = require("yankbank.telescope")
 
 -- initialize yanks tables
 local yanks = {}
@@ -53,6 +54,11 @@ function M.setup(opts)
     vim.api.nvim_create_user_command("YankBank", function()
         show_yank_bank(opts)
     end, { desc = "Show Recent Yanks" })
+
+        -- Create Telescope integration command
+        vim.api.nvim_create_user_command("YankBankTelescope", function()
+            telescope.yankbank_picker(yanks, reg_types)
+        end, { desc = "Show Recent Yanks with Telescope" })
 end
 
 return M
