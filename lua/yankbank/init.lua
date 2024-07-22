@@ -55,10 +55,6 @@ function M.setup(opts)
         show_yank_bank(opts)
     end, { desc = "Show Recent Yanks" })
 
-        -- Create Telescope integration command
-        vim.api.nvim_create_user_command("YankBankTelescope", function()
-            telescope.yankbank_picker(yanks, reg_types)
-        end, { desc = "Show Recent Yanks with Telescope" })
 end
 
 return M

@@ -6,7 +6,7 @@ local action_state = require("telescope.actions.state")
 
 local M = {}
 
-function M.yankbank_picker(yanks, reg_types)
+function M.yankbank(yanks, reg_types)
     pickers.new({}, {
         prompt_title = "YankBank",
         finder = finders.new_table({
