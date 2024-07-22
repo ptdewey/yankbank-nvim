@@ -61,6 +61,10 @@ function M.setup(opts)
         show_yank_bank(opts)
     end, { desc = "Show Recent Yanks" })
 
+-- Expose yanks and reg_types for external access
+M.yanks = yanks
+M.reg_types = reg_types
+
 return M
 end
 function M.setup(opts)

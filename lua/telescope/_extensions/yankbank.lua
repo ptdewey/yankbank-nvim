@@ -6,6 +6,10 @@ return telescope.register_extension {
         -- access extension config and user config
     end,
     exports = {
-        yankbank = yankbank.yankbank,
+        yankbank = function()
+            local yanks = require("yankbank.init").yanks
+            local reg_types = require("yankbank.init").reg_types
+            yankbank.yankbank(yanks, reg_types)
+        end,
     },
 }
