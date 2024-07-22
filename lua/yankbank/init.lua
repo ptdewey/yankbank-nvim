@@ -41,7 +41,10 @@ local function show_yank_bank(opts)
     -- open window and set keybinds
     local win_id = menu.open_window(bufnr, display_lines)
     menu.set_keymaps(win_id, bufnr, yanks, reg_types, line_yank_map, opts)
-end
+    -- Add a command for Telescope integration
+    vim.api.nvim_create_user_command("TelescopeYankBank", function()
+        require("yankbank.telescope").yankbank(yanks, reg_types)
+    end, { desc = "Show Recent Yanks with Telescope" })
 
 -- plugin setup
 function M.setup(opts)
@@ -51,7 +54,7 @@ function M.setup(opts)
     clipboard.setup_yank_autocmd(yanks, reg_types, opts)
 
     -- Create user command
-    vim.api.nvim_create_user_command("YankBank", function()
+    vim.api.nvim_create_user_command("YankBank", function(args)
         show_yank_bank(opts)
     end, { desc = "Show Recent Yanks" })
 
