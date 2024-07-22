@@ -109,3 +109,21 @@ vim.keymap.set("n", "<leader>y", "<cmd>YankBank<CR>", { noremap = true })
 
 - [nvim-neoclip](https://github.com/AckslD/nvim-neoclip.lua)
 - [yanky.nvim](https://github.com/gbprod/yanky.nvim)
+## Telescope Integration
+
+This plugin includes integration with [Telescope](https://github.com/nvim-telescope/telescope.nvim). To use the Telescope picker for YankBank, follow these steps:
+
+1. Ensure you have Telescope installed and set up in your Neovim configuration.
+2. Load the YankBank extension in Telescope by adding the following line to your Neovim configuration:
+
+```lua
+require('telescope').load_extension('yankbank')
+```
+
+3. You can now use the YankBank picker with the following command:
+
+```vim
+:Telescope yankbank
+```
+
+This will open a Telescope picker showing your recent yanks, allowing you to search and select yanks easily.
