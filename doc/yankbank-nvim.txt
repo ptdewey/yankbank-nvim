@@ -31,7 +31,7 @@ currently open buffer at the cursor position.
 
 YankBank also offers persistence between sessions, meaning that you won’t
 lose your yanks after closing and reopening a session (see
-|yankbank-nvim-persistence|.
+|yankbank-nvim-persistence|).
 
 
 SCREENSHOTS ~
