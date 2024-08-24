@@ -1,7 +1,9 @@
--- data.lua
 local M = {}
 
--- reformat yanks table for popup
+---reformat yanks table for popup
+---@param yanks table
+---@param sep string
+---@return table, table
 function M.get_display_lines(yanks, sep)
     local display_lines = {}
     local line_yank_map = {}
@@ -10,12 +12,18 @@ function M.get_display_lines(yanks, sep)
     -- calculate the maximum width needed for the yank numbers
     local max_digits = #tostring(#yanks)
 
+    -- assumes yanks is table of strings
     for i, yank in ipairs(yanks) do
         yank_num = yank_num + 1
 
-        -- remove trailing newlines
-        yank = yank:gsub("\n$", "")
-        local yank_lines = vim.split(yank, "\n", { plain = true })
+        -- FIX: there were changes here, might need further changes
+        local yank_lines = yank
+        if type(yank) == "string" then
+            -- remove trailing newlines
+            yank = yank:gsub("\n$", "")
+            yank_lines = vim.split(yank, "\n", { plain = true })
+        end
+
         local leading_space, leading_space_length
 
         -- determine the number of leading whitespaces on the first line

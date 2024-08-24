@@ -1,7 +1,7 @@
--- helpers.lua
 local M = {}
 
 -- navigate to the next numbered item
+---@param steps integer
 function M.next_numbered_item(steps)
     steps = steps or 1 -- Default to 1 if no steps are provided
     local current_line = vim.api.nvim_win_get_cursor(0)[1]
@@ -24,6 +24,7 @@ function M.next_numbered_item(steps)
 end
 
 -- navigate to the previous numbered item
+---@param steps integer
 function M.prev_numbered_item(steps)
     steps = steps or 1 -- Default to 1 if no steps are provided
     local current_line = vim.api.nvim_win_get_cursor(0)[1]
@@ -43,17 +44,27 @@ function M.prev_numbered_item(steps)
 end
 
 -- customized paste function that functions like 'p'
+---@param text string|table
+---@param reg_type string
 function M.smart_paste(text, reg_type)
-    -- convert text string to string list
     local lines = {}
-    for line in text:gmatch("([^\n]*)\n?") do
-        table.insert(lines, line)
+    if type(text) == "string" then
+        -- convert text string to string list
+        for line in text:gmatch("([^\n]*)\n?") do
+            table.insert(lines, line)
+        end
+        if #lines > 1 then
+            table.remove(lines)
+        end
+    else
+        -- text is already table
+        lines = text
     end
 
     -- remove last newline character to replicate base put behavior
-    if #lines > 1 then
-        table.remove(lines)
-    end
+    -- if lines[#lines] == "" then
+    --     table.remove(lines)
+    -- end
     vim.api.nvim_put(lines, reg_type, true, true)
 end
 

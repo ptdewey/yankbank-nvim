@@ -1,10 +1,18 @@
--- clipboard.lua
 local M = {}
 
+-- import persistence module
+local persistence = require("yankbank.persistence")
+
 -- Function to add yanked text to table
-function M.add_yank(yanks, reg_types, text, reg_type, max_entries)
+---@param yanks table
+---@param reg_types table
+---@param text string
+---@param reg_type string
+---@param opts table
+function M.add_yank(yanks, reg_types, text, reg_type, opts)
     -- avoid adding empty strings
-    if text == "" and text == " " and text == "\n" then
+    -- TODO: could block adding single characters here
+    if text == "" or text == " " or text == "\n" then
         return
     end
 
@@ -15,25 +23,29 @@ function M.add_yank(yanks, reg_types, text, reg_type, max_entries)
         end
     end
 
+    -- add entry to bank
     table.insert(yanks, 1, text)
     table.insert(reg_types, 1, reg_type)
-
-    if #yanks > max_entries then
+    if #yanks > opts.max_entries then
         table.remove(yanks)
         table.remove(reg_types)
     end
+
+    -- add entry to persistent store
+    persistence.add_entry(text, reg_type, opts)
 end
 
--- set up plugin autocommands
--- TODO: make augroup
+-- autocommand to listen for yank events
+---@param yanks table
+---@param reg_types table
+---@param opts table
 function M.setup_yank_autocmd(yanks, reg_types, opts)
-    -- autocommand to listen for yank events
     vim.api.nvim_create_autocmd("TextYankPost", {
         callback = function()
             -- get register information
             local rn = vim.v.event.regname
 
-            -- check if changes were made to default register
+            -- check changes wwere made to default register
             if rn == "" or rn == "+" then
                 local reg_type = vim.fn.getregtype(rn)
                 local yank_text = vim.fn.getreg(rn)
@@ -45,13 +57,7 @@ function M.setup_yank_autocmd(yanks, reg_types, opts)
                 if #yank_text <= 1 then
                     return
                 end
-                M.add_yank(
-                    yanks,
-                    reg_types,
-                    yank_text,
-                    reg_type,
-                    opts.max_entries
-                )
+                M.add_yank(yanks, reg_types, yank_text, reg_type, opts)
             end
         end,
     })
@@ -72,13 +78,7 @@ function M.setup_yank_autocmd(yanks, reg_types, opts)
                     return
                 end
 
-                M.add_yank(
-                    yanks,
-                    reg_types,
-                    yank_text,
-                    reg_type,
-                    opts.max_entries
-                )
+                M.add_yank(yanks, reg_types, yank_text, reg_type, opts)
             end,
         })
     end
