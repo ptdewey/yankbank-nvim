@@ -1,4 +1,4 @@
-*yankbank-nvim.txt*        For Neovim >= 0.7.0       Last change: 2024 June 14
+*yankbank-nvim.txt*       For Neovim >= 0.7.0      Last change: 2024 August 24
 
 ==============================================================================
 Table of Contents                            *yankbank-nvim-table-of-contents*
@@ -54,7 +54,7 @@ Packer:
 
 >lua
     use {
-        'ptdewey/yankbank-nvim',
+        "ptdewey/yankbank-nvim",
         config = function()
             require('yankbank').setup()
         end,
@@ -75,7 +75,10 @@ containing keymap overrides | `{}` | | keymaps.navigation_next | string | `"j"`
 strings | `{ "<Esc>", "<C-c>", "q" }` | | num_behavior | string defining jump
 behavior "prefix" or "jump" | `"prefix"` | | focus_gain_poll | boolean | `nil`
 | | registers | table container for register overrides | `{ }` | |
-registers.yank_register | default register to yank from popup to | `"+"` |
+registers.yank_register | default register to yank from popup to | `"+"` | |
+persist_type | string defining persistence type "memory" or "sqlite" |
+`"memory"` | | persist_path | string defining path for persistence file/db file
+| `"~/.local/share/nvim/lazy/yankbank-nvim"` (if installed with lazy) |
 
 
 EXAMPLE CONFIGURATION
@@ -91,6 +94,8 @@ EXAMPLE CONFIGURATION
                     navigation_next = "j",
                     navigation_prev = "k",
                 },
+                num_behavior = "prefix",
+                persist_type = "sqlite",
                 registers = {
                     yank_register = "+",
                 },
@@ -107,7 +112,29 @@ navigation with '3j' moving down 3 entries in the bank. - `num_behavior =
 entry 3) - Note: If 'max_entries' is a two-digit number, there will be a delay
 upon pressing numbers that prefix a valid entry.
 
-The 'focus_gain_poll' option allows for enabling an additional autocommand that
+
+PERSISTENCE
+
+If persistence between sessions is desired, sqlite.lua will be used to create a
+persistent store for recent yanks in the plugin root directory. To utilize
+sqlite persistence, `"kkharji/sqlite.lua"` must be added as a dependency in
+your config, and `persist_type` must be set to `"sqlite"`
+
+>lua
+    -- lazy
+    return {
+        "ptdewey/yankbank-nvim",
+        dependencies = "kkharji/sqlite.lua",
+        config = function()
+            require('yankbank').setup({
+                -- other options...
+                persist_type = "sqlite"
+            })
+        end,
+    }
+<
+
+The'focus_gain_poll' option allows for enabling an additional autocommand that
 watches for focus gains (refocusing Neovim window), and checks for changes in
 the unnamedplus ('+') register, adding to yankbank when new contents are found.
 This allows for automatically adding text copied from other sources (like a
@@ -132,9 +159,10 @@ I would personally also recommend setting a keybind to open the menu.
 
 POTENTIAL IMPROVEMENTS         *yankbank-nvim-yankbank-potential-improvements*
 
-- Persistence between sessions (through either sqlite database or just a file)
+- Polling on unnamedplus register to populate bank in more intuitive manner (could be enabled as option)
 - nvim-cmp integration
 - fzf integration
+- telescope integration
 
 
 ALTERNATIVES                             *yankbank-nvim-yankbank-alternatives*
