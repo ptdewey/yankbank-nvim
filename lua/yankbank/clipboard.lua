@@ -13,7 +13,6 @@ function M.add_yank(yanks, reg_types, text, reg_type, opts)
     -- avoid adding empty strings
     -- TODO: could block adding single characters here
     if text == "" or text == " " or text == "\n" then
-        -- if text == "" and text == " " and text == "\n" then -- NOTE: which is correct between and/or here?
         return
     end
 
@@ -58,7 +57,7 @@ function M.setup_yank_autocmd(yanks, reg_types, opts)
                 if #yank_text <= 1 then
                     return
                 end
-                M.add_yank(yanks, reg_types, yank_text, reg_type, opts.max_entries)
+                M.add_yank(yanks, reg_types, yank_text, reg_type, opts)
             end
         end,
     })
@@ -79,7 +78,7 @@ function M.setup_yank_autocmd(yanks, reg_types, opts)
                     return
                 end
 
-                M.add_yank(yanks, reg_types, yank_text, reg_type, opts.max_entries)
+                M.add_yank(yanks, reg_types, yank_text, reg_type, opts)
             end,
         })
     end

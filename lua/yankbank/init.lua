@@ -22,7 +22,7 @@ local default_opts = {
     keymaps = {},
 }
 
-local plugin_path = debug.getinfo(1).source:sub(2):match("(.*/).*/.*/") or "./"
+-- local plugin_path = debug.getinfo(1).source:sub(2):match("(.*/).*/.*/") or "./"
 
 --- wrapper function for main plugin functionality
 ---@param opts table
@@ -32,7 +32,8 @@ local function show_yank_bank(opts)
     opts = opts or default_opts
 
     -- initialize buffer and populate bank
-    local bufnr, display_lines, line_yank_map = menu.create_and_fill_buffer(yanks, reg_types, opts)
+    local bufnr, display_lines, line_yank_map =
+        menu.create_and_fill_buffer(yanks, reg_types, opts)
 
     -- handle empty bank case
     if not bufnr or not display_lines or not line_yank_map then
@@ -45,7 +46,7 @@ local function show_yank_bank(opts)
 end
 
 -- plugin setup
----@param opts table?
+---@param opts table
 function M.setup(opts)
     -- merge opts with default options table
     -- opts = vim.tbl_deep_extend("force", default_opts, opts or {})
