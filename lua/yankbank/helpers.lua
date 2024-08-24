@@ -1,4 +1,3 @@
--- helpers.lua
 local M = {}
 
 -- navigate to the next numbered item

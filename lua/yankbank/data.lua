@@ -1,4 +1,3 @@
--- data.lua
 local M = {}
 
 ---reformat yanks table for popup
@@ -36,18 +35,14 @@ function M.get_display_lines(yanks, sep)
         for j, line in ipairs(yank_lines) do
             if j == 1 then
                 -- Format the line number with uniform spacing
-                local lineNumber =
-                    string.format("%" .. max_digits .. "d: ", yank_num)
+                local lineNumber = string.format("%" .. max_digits .. "d: ", yank_num)
                 line = line:sub(leading_space_length + 1)
                 table.insert(display_lines, lineNumber .. line)
             else
                 -- Remove the same amount of leading whitespace as on the first line
                 line = line:sub(leading_space_length + 1)
                 -- Use spaces equal to the line number's reserved space to align subsequent lines
-                table.insert(
-                    display_lines,
-                    string.rep(" ", max_digits + 2) .. line
-                )
+                table.insert(display_lines, string.rep(" ", max_digits + 2) .. line)
             end
             table.insert(line_yank_map, i)
         end
@@ -55,10 +50,7 @@ function M.get_display_lines(yanks, sep)
         if i < #yanks then
             -- Add a visual separator between yanks, aligned with the yank content
             if sep ~= "" then
-                table.insert(
-                    display_lines,
-                    string.rep(" ", max_digits + 2) .. sep
-                )
+                table.insert(display_lines, string.rep(" ", max_digits + 2) .. sep)
             end
             table.insert(line_yank_map, false)
         end

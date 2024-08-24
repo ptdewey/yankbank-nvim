@@ -2,101 +2,78 @@ local M = {}
 
 local sqlite = require("sqlite.db")
 
--- TODO: yank primary key?
--- integer tracking for table position not controlled by sqlite3
+local dbdir = vim.fn.stdpath("data") .. "/databases"
+local max_entries = 10
 
----create db table for yanks, PK is row id and will increment automatically
--- @param existing_yanks table
--- @param reg_types table
--- @param uri string
--- @return sqlite_db
-function M.init_db(existing_yanks, reg_types, uri)
-    local db = sqlite({
-        uri = uri,
-    })
-    db:open()
-
-    db:create("yanks", {
-        id = true,
-        yank_content = { "text", required = true },
+---@class YankBankDB:sqlite_db
+---@field bank sqlite_tbl
+local db = sqlite({
+    uri = dbdir .. "/yankbank.db",
+    bank = {
+        -- yanked text should be unique and be primary key
+        yank_text = { "text", unique = true, primary = true, required = true },
         reg_type = { "text", required = true },
-        ensure = true,
+    },
+})
+
+---@class sqlite_tbl
+local data = db.bank
+
+--- insert yank entry into database
+---@param yank_text string yanked text
+---@param reg_type string register type
+function data:insert_yank(yank_text, reg_type)
+    -- attempt to remove entry if count > 0 (to move potential duplicate)
+    if self:count() > 0 then
+        self:remove({ yank_text = yank_text })
+    end
+
+    -- insert entry
+    self:insert({
+        yank_text = yank_text,
+        reg_type = reg_type,
     })
-    local status = db:status()
 
-    db:insert("yanks", { yank_content = existing_yanks, reg_type = reg_types })
+    -- attempt to trim database size
+    self:trim_size()
+end
 
-    if status ~= nil then
-        print("yankbank db error: ", status.code)
+--- trim database size if it exceeds max_entries option
+function data:trim_size()
+    if self:count() > max_entries then
+        -- remove the oldest entry
+        self:remove({ yank_text = self:get()[1].yank_text })
     end
-    -- TODO: add functionality to add existing yanks to the db table "yanks"
-    db:close()
-    return db
 end
 
--- add entry to DB
--- @param db sqlite_db
--- @param yank_content string
--- @param reg_type string
--- @return boolean
-function M.add_to_yanktable(db, yank_content, reg_type)
-    db:open()
-    db:insert("yanks", { yank_content = yank_content, reg_type = reg_type })
-    local status = db:status()
-    db:close()
-    return status == nil
-end
+--- get sqlite bank contents
+---@return table yanks, table reg_types
+function data:get_bank()
+    local yanks, reg_types = {}, {}
 
--- removes entry from yanktable
--- @param db sqlite_db
--- @param yank_content string
--- @return boolean
-function M.remove_from_yanktable(db, yank_content)
-    db:open()
-    db:delete("yanks", { where = { yank_content = yank_content } })
-    local status = db:status()
-    db:close()
-    return status == nil
-end
-
--- returns all yanks in table sorted by recency descending
--- @param db sqlite_db
--- @return table[]
-function M.get_yanks(db)
-    db:open()
-    local ret = db:select("yanks", { order_by = { asc = "id" } })
-    db:close()
-    return ret
-end
-
-function M.remove_by_yank_index(db, index)
-    db:open()
-    local ret = db:select("yanks", { order_by = { asc = "id" } })
-    local id_to_remove = ret[index].id
-    local del = db:delete("yanks", { where = { id = id_to_remove } })
-    if del ~= nil then
-        return del
+    local bank = self:get()
+    for _, entry in ipairs(bank) do
+        table.insert(yanks, 1, entry.yank_text)
+        table.insert(reg_types, 1, entry.reg_type)
     end
-    local status = db:status()
-    db:close()
-    return status == nil
+
+    return yanks, reg_types
 end
 
--- test function for db operations
-local function test_database()
-    local test_db = M.init_db({}, {}, "/tmp/test_yankbank.db")
-    -- print(vim.inspect(test_db))
-    M.add_to_yanktable(test_db, "Sample Yank", "reg")
-    print(vim.inspect(M.get_yanks(test_db)))
-    M.add_to_yanktable(test_db, "Sample Different Yank", "reg")
-    M.remove_from_yanktable(test_db, "Sample Different Yank")
-    print("after SDY delete")
-    print(vim.inspect(M.get_yanks(test_db)))
-    M.remove_by_yank_index(test_db, 2)
-    print("after index 2 delete")
-    print(vim.inspect(M.get_yanks(test_db)))
-end
+-- FIX: correctly handle multiple sessions open at once
+-- - fetch database state each time YankBank command is called?
 
-test_database()
+--- set up database persistence
+---@param opts table
+---@return sqlite_tbl data
+function M.setup(opts)
+    max_entries = opts.max_entries
+
+    if vim.fn.isdirectory(dbdir) == 0 then
+        vim.fn.mkdir(dbdir, "p")
+    end
+
+    return data
+end
 
 return M

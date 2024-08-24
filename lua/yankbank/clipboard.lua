@@ -1,4 +1,3 @@
--- clipboard.lua
 local M = {}
 
 -- import persistence module

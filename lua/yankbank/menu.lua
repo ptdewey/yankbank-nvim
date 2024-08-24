@@ -1,4 +1,3 @@
--- menu.lua
 local M = {}
 
 -- import clipboard functions
@@ -61,8 +60,7 @@ function M.open_window(bufnr, display_lines)
     -- define buffer window width and height based on number of columns
     -- FIX: long enough entries will cause window to go below end of screen
     -- FIX: wrapping long lines will cause entries below to not show in menu (requires scrolling to see)
-    local width =
-        math.min(max_width, vim.api.nvim_get_option_value("columns", {}) - 4)
+    local width = math.min(max_width, vim.api.nvim_get_option_value("columns", {}) - 4)
     local height = math.min(
         display_lines and #display_lines or 1,
         vim.api.nvim_get_option_value("lines", {}) - 10
@@ -73,12 +71,8 @@ function M.open_window(bufnr, display_lines)
         relative = "editor",
         width = width,
         height = height,
-        col = math.floor(
-            (vim.api.nvim_get_option_value("columns", {}) - width) / 2
-        ),
-        row = math.floor(
-            (vim.api.nvim_get_option_value("lines", {}) - height) / 2
-        ),
+        col = math.floor((vim.api.nvim_get_option_value("columns", {}) - width) / 2),
+        row = math.floor((vim.api.nvim_get_option_value("lines", {}) - height) / 2),
         border = "rounded",
         style = "minimal",
     })
@@ -118,8 +112,7 @@ function M.set_keymaps(win_id, bufnr, yanks, reg_types, line_yank_map, opts)
     local k = vim.tbl_deep_extend("force", default_keymaps, opts.keymaps or {})
 
     -- merge default and options keymap tables
-    opts.registers =
-        vim.tbl_deep_extend("force", default_registers, opts.registers or {})
+    opts.registers = vim.tbl_deep_extend("force", default_registers, opts.registers or {})
 
     -- check table for number behavior option (prefix or jump, default to prefix)
     opts.num_behavior = opts.num_behavior or "prefix"

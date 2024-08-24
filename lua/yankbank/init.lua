@@ -1,4 +1,3 @@
--- init.lua
 local M = {}
 
 -- local imports
@@ -23,12 +22,12 @@ local default_opts = {
     persist_path = plugin_path .. "bank.txt",
 }
 
--- wrapper function for main plugin functionality
+--- wrapper function for main plugin functionality
 ---@param opts table
+--- TODO: read from persistent database if sql persist is set (allow multi-session sync)
 local function show_yank_bank(opts)
     -- create and fill buffer
-    local bufnr, display_lines, line_yank_map =
-        menu.create_and_fill_buffer(yanks, reg_types, opts)
+    local bufnr, display_lines, line_yank_map = menu.create_and_fill_buffer(yanks, reg_types, opts)
 
     -- handle empty bank case
     if not bufnr or not display_lines or not line_yank_map then
@@ -45,10 +44,8 @@ function M.setup(opts)
     -- merge opts with default options table
     opts = vim.tbl_deep_extend("force", default_opts, opts or {})
 
-    -- enable persistence based on opts
-    -- (needs to be called before autocmd setup)
-    persistence.setup(yanks, reg_types, opts)
-    -- yanks, reg_types = persistence.setup(yanks, reg_types, opts)
+    -- enable persistence based on opts (needs to be called before autocmd setup)
+    yanks, reg_types = persistence.setup(opts)
 
     -- create clipboard autocmds
     clipboard.setup_yank_autocmd(yanks, reg_types, opts)
