@@ -29,6 +29,10 @@ the current contents of the unnamed register).
 Choosing an entry from the menu (by hitting enter) will paste it into the
 currently open buffer at the cursor position.
 
+YankBank also offers persistence between sessions, meaning that you won’t
+lose your yanks after closing and reopening a session (see
+|yankbank-nvim-persistence|.
+
 
 SCREENSHOTS ~
 
@@ -38,6 +42,9 @@ It will be populated further for each yank or deletion in that session.
 
 
 INSTALLATION AND SETUP         *yankbank-nvim-yankbank-installation-and-setup*
+
+
+WITHOUT PERSISTENCE:
 
 Lazy:
 
@@ -50,13 +57,19 @@ Lazy:
     }
 <
 
-Packer:
+
+WITH PERSISTENCE
+
+Lazy:
 
 >lua
-    use {
+    {
         "ptdewey/yankbank-nvim",
+        dependencies = "kkharji/sqlite.lua",
         config = function()
-            require('yankbank').setup()
+            require('yankbank').setup({
+                persist_type = "sqlite",
+            })
         end,
     }
 <
@@ -77,30 +90,28 @@ behavior "prefix" or "jump" | `"prefix"` | | focus_gain_poll | boolean | `nil`
 | | registers | table container for register overrides | `{ }` | |
 registers.yank_register | default register to yank from popup to | `"+"` | |
 persist_type | string defining persistence type "memory" or "sqlite" |
-`"memory"` | | persist_path | string defining path for persistence file/db file
-| `"~/.local/share/nvim/lazy/yankbank-nvim"` (if installed with lazy) |
+`"memory"` |
 
 
 EXAMPLE CONFIGURATION
 
 >lua
-        config = function()
-            require('yankbank').setup({
-                max_entries = 9,
-                sep = "",
-                num_behavior = "prefix",
-                focus_gain_poll = true,
-                keymaps = {
-                    navigation_next = "j",
-                    navigation_prev = "k",
-                },
-                num_behavior = "prefix",
-                persist_type = "sqlite",
-                registers = {
-                    yank_register = "+",
-                },
-            })
-        end,
+    config = function()
+        require('yankbank').setup({
+            max_entries = 9,
+            sep = "",
+            num_behavior = "prefix",
+            focus_gain_poll = true,
+            keymaps = {
+                paste = "<CR>",
+            },
+            num_behavior = "prefix",
+            persist_type = "sqlite",
+            registers = {
+                yank_register = "+",
+            },
+        })
+    end,
 <
 
 If no separator is desired, pass in an empty string for `sep`
@@ -113,7 +124,7 @@ entry 3) - Note: If 'max_entries' is a two-digit number, there will be a delay
 upon pressing numbers that prefix a valid entry.
 
 
-PERSISTENCE
+PERSISTENCE ~
 
 If persistence between sessions is desired, sqlite.lua will be used to create a
 persistent store for recent yanks in the plugin root directory. To utilize
