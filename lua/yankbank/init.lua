@@ -9,24 +9,29 @@ local persistence = require("yankbank.persistence")
 local yanks = {}
 local reg_types = {}
 
--- YANKS = {}
--- REG_TYPES = {}
-
-local plugin_path = debug.getinfo(1).source:sub(2):match("(.*/).*/.*/") or "./"
-
 -- default plugin options
 local default_opts = {
     max_entries = 10,
     sep = "-----",
+    focus_gain_poll = false,
+    num_behavior = "prefix",
+    registers = {
+        yank_register = "+",
+    },
     persist_type = "memory",
-    persist_path = plugin_path .. "bank.txt",
+    keymaps = {},
 }
+
+local plugin_path = debug.getinfo(1).source:sub(2):match("(.*/).*/.*/") or "./"
 
 --- wrapper function for main plugin functionality
 ---@param opts table
 --- TODO: read from persistent database if sql persist is set (allow multi-session sync)
 local function show_yank_bank(opts)
-    -- create and fill buffer
+    -- Parse command arguments directly if args are provided as a string
+    opts = opts or default_opts
+
+    -- initialize buffer and populate bank
     local bufnr, display_lines, line_yank_map = menu.create_and_fill_buffer(yanks, reg_types, opts)
 
     -- handle empty bank case
@@ -34,6 +39,7 @@ local function show_yank_bank(opts)
         return
     end
 
+    -- open window and set keybinds
     local win_id = menu.open_window(bufnr, display_lines)
     menu.set_keymaps(win_id, bufnr, yanks, reg_types, line_yank_map, opts)
 end
@@ -42,7 +48,8 @@ end
 ---@param opts table?
 function M.setup(opts)
     -- merge opts with default options table
-    opts = vim.tbl_deep_extend("force", default_opts, opts or {})
+    -- opts = vim.tbl_deep_extend("force", default_opts, opts or {})
+    opts = opts or default_opts
 
     -- enable persistence based on opts (needs to be called before autocmd setup)
     yanks, reg_types = persistence.setup(opts)

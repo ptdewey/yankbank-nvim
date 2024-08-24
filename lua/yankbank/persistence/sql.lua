@@ -69,6 +69,7 @@ end
 function M.setup(opts)
     max_entries = opts.max_entries
 
+    -- TODO: move database into plugin directory instead to allow easier uninstall
     if vim.fn.isdirectory(dbdir) == 0 then
         vim.fn.mkdir(dbdir, "p")
     end

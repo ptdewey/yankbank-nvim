@@ -5,13 +5,11 @@ A Neovim plugin for keeping track of more recent yanks and deletions and exposin
 ## What it Does
 
 YankBank stores the N recent yanks into the unnamed register ("), then populates a popup window with these recent yanks, allowing for quick access to recent yank history.
-Upon opening the popup menu, the current contents of the unnamedplus (+) register are also added to the menu (if they are different than the current contents of the unnamed register).
+Upon opening the popup menu, the current contents of the unnamedplus (+) register are also added to the menu (if they are different from the current contents of the unnamed register).
 
 Choosing an entry from the menu (by hitting enter) will paste it into the currently open buffer at the cursor position.
 
 ### Screenshots
-
-<!-- ![YankBank popup window](assets/screenshot-1.png) -->
 
 ![YankBank popup window zoomed](assets/screenshot-2.png)
 
@@ -54,29 +52,36 @@ The setup function also supports taking in a table of options:
 | keymaps.yank | string | `"yy"` |
 | keymaps.close | table of strings | `{ "<Esc>", "<C-c>", "q" }` |
 | num_behavior | string defining jump behavior "prefix" or "jump" | `"prefix"` |
+| focus_gain_poll | boolean | `nil` |
 | registers | table container for register overrides | `{ }` |
 | registers.yank_register | default register to yank from popup to | `"+"` |
-| persist_type | string defining persistence type "memory", "sql", or "file" | `"memory"` |
+| persist_type | string defining persistence type "memory" or "sqlite" | `"memory"` |
 | persist_path | string defining path for persistence file/db file | `"~/.local/share/nvim/lazy/yankbank-nvim"` (if installed with lazy) |
 
 
-If no separator is desired, pass in an empty string for sep:
+#### Example Configuration
+
 ```lua
     config = function()
         require('yankbank').setup({
-            max_entries = 12,
+            max_entries = 9,
             sep = "",
+            num_behavior = "prefix",
+            focus_gain_poll = true,
             keymaps = {
                 navigation_next = "j",
                 navigation_prev = "k",
             },
             num_behavior = "prefix",
-            persist_type = "memory",
+            persist_type = "sqlite",
+            registers = {
+                yank_register = "+",
+            },
         })
     end,
 ```
 
-
+If no separator is desired, pass in an empty string for `sep`
 
 The 'num_behavior' option defines in-popup navigation behavior when hitting number keys.
 - `num_behavior = "prefix"` works similar to traditional vim navigation with '3j' moving down 3 entries in the bank.
@@ -84,9 +89,8 @@ The 'num_behavior' option defines in-popup navigation behavior when hitting numb
     - Note: If 'max_entries' is a two-digit number, there will be a delay upon pressing numbers that prefix a valid entry.
 
 #### Persistence
-If persistence between sessions is desired, there is a choice between a sqlite database and a file.
-Both file and sqlite will (by default) create a persistent store for recent yanks in the plugin root directory.
-File-based persistence requires no added dependencies, but to utilize sqlite, `"kkharji/sqlite.lua"` must be added as a dependency in your config:
+If persistence between sessions is desired, sqlite.lua will be used to create a persistent store for recent yanks in the plugin root directory.
+To utilize sqlite persistence, `"kkharji/sqlite.lua"` must be added as a dependency in your config, and `persist_type` must be set to `"sqlite"`:
 
 ```lua
 -- lazy
@@ -95,12 +99,14 @@ return {
     dependencies = "kkharji/sqlite.lua",
     config = function()
         require('yankbank').setup({
+            -- other options...
             persist_type = "sqlite"
-            persist_path = "/tmp/yankbank.db",
         })
     end,
 }
 ```
+
+The 'focus_gain_poll' option allows for enabling an additional autocommand that watches for focus gains (refocusing Neovim window), and checks for changes in the unnamedplus ('+') register, adding to yankbank when new contents are found. This allows for automatically adding text copied from other sources (like a browser) to the yankbank without the bank opening trigger. Off by default, but I highly recommend enabling it (`focus_gain_poll = true`)
 
 ## Usage
 
@@ -118,7 +124,7 @@ vim.keymap.set("n", "<leader>y", "<cmd>YankBank<CR>", { noremap = true })
 - Polling on unnamedplus register to populate bank in more intuitive manner (could be enabled as option)
 - nvim-cmp integration
 - fzf integration
-- Setup options configuring which registers are included
+- telescope integration
 
 ## Alternatives
 

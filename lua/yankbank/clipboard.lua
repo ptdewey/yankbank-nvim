@@ -13,11 +13,11 @@ function M.add_yank(yanks, reg_types, text, reg_type, opts)
     -- avoid adding empty strings
     -- TODO: could block adding single characters here
     if text == "" or text == " " or text == "\n" then
+        -- if text == "" and text == " " and text == "\n" then -- NOTE: which is correct between and/or here?
         return
     end
 
     -- do not update with duplicate values
-    -- BUG: there seems to be some issues here when trying to add on pipup open
     for _, entry in ipairs(yanks) do
         if entry == text then
             return
@@ -36,8 +36,6 @@ function M.add_yank(yanks, reg_types, text, reg_type, opts)
     persistence.add_entry(text, reg_type, opts)
 end
 
--- TODO: autocmd for focus gained (check system clipboard?)
-
 -- autocommand to listen for yank events
 ---@param yanks table
 ---@param reg_types table
@@ -47,19 +45,44 @@ function M.setup_yank_autocmd(yanks, reg_types, opts)
         callback = function()
             -- get register information
             local rn = vim.v.event.regname
-            -- local reg_type = vim.fn.getregtype("+")
 
             -- check changes wwere made to default register
-            if vim.v.event.regname == "" or vim.v.event.regname == "+" then
+            if rn == "" or rn == "+" then
                 local reg_type = vim.fn.getregtype(rn)
-                local yanked_text = vim.fn.getreg(rn)
-                if #yanked_text <= 1 then
+                local yank_text = vim.fn.getreg(rn)
+
+                if not yank_text or type(yank_text) ~= "string" then
                     return
                 end
-                M.add_yank(yanks, reg_types, yanked_text, reg_type, opts)
+
+                if #yank_text <= 1 then
+                    return
+                end
+                M.add_yank(yanks, reg_types, yank_text, reg_type, opts.max_entries)
             end
         end,
     })
+
+    -- poll registers when vim is focused (check for new clipboard activity)
+    if opts.focus_gain_poll == true then
+        vim.api.nvim_create_autocmd("FocusGained", {
+            callback = function()
+                -- get register information
+                local reg_type = vim.fn.getregtype("+")
+                local yank_text = vim.fn.getreg("+")
+
+                if not yank_text or type(yank_text) ~= "string" then
+                    return
+                end
+
+                if string.len(yank_text) <= 1 then
+                    return
+                end
+
+                M.add_yank(yanks, reg_types, yank_text, reg_type, opts.max_entries)
+            end,
+        })
+    end
 end
 
 return M
