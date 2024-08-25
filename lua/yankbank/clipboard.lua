@@ -6,8 +6,7 @@ local persistence = require("yankbank.persistence")
 --- Function to add yanked text to table
 ---@param text string
 ---@param reg_type string
----@param opts table
-function M.add_yank(text, reg_type, opts)
+function M.add_yank(text, reg_type)
     -- avoid adding empty strings
     if text == "" and text == " " and text == "\n" then
         return
@@ -28,18 +27,17 @@ function M.add_yank(text, reg_type, opts)
     table.insert(REG_TYPES, 1, reg_type)
 
     -- trim table size if necessary
-    if #YANKS > opts.max_entries then
+    if #YANKS > OPTS.max_entries then
         table.remove(YANKS)
         table.remove(REG_TYPES)
     end
 
     -- add entry to persistent store
-    persistence.add_entry(text, reg_type, opts)
+    persistence.add_entry(text, reg_type)
 end
 
 --- autocommand to listen for yank events
----@param opts table
-function M.setup_yank_autocmd(opts)
+function M.setup_yank_autocmd()
     vim.api.nvim_create_autocmd("TextYankPost", {
         callback = function()
             -- get register information
@@ -58,13 +56,13 @@ function M.setup_yank_autocmd(opts)
                     return
                 end
 
-                M.add_yank(yank_text, reg_type, opts)
+                M.add_yank(yank_text, reg_type)
             end
         end,
     })
 
     -- poll registers when vim is focused (check for new clipboard activity)
-    if opts.focus_gain_poll == true then
+    if OPTS.focus_gain_poll == true then
         vim.api.nvim_create_autocmd("FocusGained", {
             callback = function()
                 -- get register information
@@ -79,7 +77,7 @@ function M.setup_yank_autocmd(opts)
                     return
                 end
 
-                M.add_yank(yank_text, reg_type, opts)
+                M.add_yank(yank_text, reg_type)
             end,
         })
     end

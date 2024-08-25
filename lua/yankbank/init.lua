@@ -5,9 +5,9 @@ local menu = require("yankbank.menu")
 local clipboard = require("yankbank.clipboard")
 local persistence = require("yankbank.persistence")
 
--- initialize tables
 YANKS = {}
 REG_TYPES = {}
+OPTS = {}
 
 -- default plugin options
 local default_opts = {
@@ -23,46 +23,38 @@ local default_opts = {
 }
 
 --- wrapper function for main plugin functionality
----@param opts table
-local function show_yank_bank(opts)
-    YANKS = persistence.get_yanks(opts) or YANKS
+local function show_yank_bank()
+    YANKS = persistence.get_yanks() or YANKS
 
     -- initialize buffer and populate bank
-    local bufnr, display_lines, line_yank_map =
-        menu.create_and_fill_buffer(opts)
-
-    -- handle empty bank case
-    if not bufnr or not display_lines or not line_yank_map then
+    local buf_data = menu.create_and_fill_buffer()
+    if not buf_data then
         return
     end
 
-    -- open window and set keybinds
-    local win_id = menu.open_window(bufnr, display_lines)
-    menu.set_keymaps(win_id, bufnr, line_yank_map, opts)
+    -- open popup window
+    buf_data.win_id = menu.open_window(buf_data)
+
+    -- set popup keybinds
+    menu.set_keymaps(buf_data)
 end
 
 -- plugin setup
 ---@param opts? table
 function M.setup(opts)
     -- merge opts with default options table
-    opts = vim.tbl_deep_extend("keep", opts or {}, default_opts)
+    OPTS = vim.tbl_deep_extend("keep", opts or {}, default_opts)
 
     -- enable persistence based on opts (needs to be called before autocmd setup)
-    YANKS, REG_TYPES = persistence.setup(opts)
+    YANKS, REG_TYPES = persistence.setup()
 
     -- create clipboard autocmds
-    clipboard.setup_yank_autocmd(opts)
+    clipboard.setup_yank_autocmd()
 
     -- create user command
     vim.api.nvim_create_user_command("YankBank", function()
-        show_yank_bank(opts)
+        show_yank_bank()
     end, { desc = "Show Recent Yanks" })
-
-    -- TODO: remove
-    local api = require("yankbank.api")
-    vim.api.nvim_create_user_command("YankBankApi", function()
-        print(vim.inspect(api.get_all()))
-    end, {})
 end
 
 return M

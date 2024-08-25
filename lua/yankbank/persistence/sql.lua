@@ -82,11 +82,27 @@ function data:get_bank()
     return yanks, reg_types
 end
 
+--- remove an entry from the banks table matching input text
+---@param text string
+function data:remove_match(text)
+    db:with_open(function()
+        return db:eval(
+            "DELETE FROM bank WHERE yank_text = :yank_text",
+            { yank_text = text }
+        )
+    end)
+end
+
+--- get data in sqlite_tbl form (for api use only)
+---@return sqlite_tbl
+function M.data()
+    return data
+end
+
 --- set up database persistence
----@param opts table
 ---@return sqlite_tbl data
-function M.setup(opts)
-    max_entries = opts.max_entries
+function M.setup()
+    max_entries = OPTS.max_entries
 
     vim.api.nvim_create_user_command("YankBankClearDB", function()
         data:remove()
@@ -94,7 +110,7 @@ function M.setup(opts)
         REG_TYPES = {}
     end, {})
 
-    if opts.debug == true then
+    if OPTS.debug == true then
         vim.api.nvim_create_user_command("YankBankViewDB", function()
             print(vim.inspect(data:get()))
         end, {})

@@ -1,9 +1,8 @@
 local M = {}
 
 --- reformat yanks table for popup
----@param opts table
 ---@return table, table
-function M.get_display_lines(opts)
+function M.get_display_lines()
     local display_lines = {}
     local line_yank_map = {}
     local yank_num = 0
@@ -51,10 +50,10 @@ function M.get_display_lines(opts)
 
         if i < #YANKS then
             -- Add a visual separator between yanks, aligned with the yank content
-            if opts.sep ~= "" then
+            if OPTS.sep ~= "" then
                 table.insert(
                     display_lines,
-                    string.rep(" ", max_digits + 2) .. opts.sep
+                    string.rep(" ", max_digits + 2) .. OPTS.sep
                 )
             end
             table.insert(line_yank_map, false)

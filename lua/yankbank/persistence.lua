@@ -3,32 +3,29 @@ local M = {}
 local persistence = {}
 
 ---add entry from bank to
----@param entry string|table
+---@param entry string
 ---@param reg_type string
----@param opts table
-function M.add_entry(entry, reg_type, opts)
-    if opts.persist_type == "sqlite" then
+function M.add_entry(entry, reg_type)
+    if OPTS.persist_type == "sqlite" then
         persistence:insert_yank(entry, reg_type)
     end
 end
 
 --- get current state of yanks in persistent storage
----@param opts table
-function M.get_yanks(opts)
-    if opts.persist_type == "sqlite" then
+function M.get_yanks()
+    if OPTS.persist_type == "sqlite" then
         return persistence:get_bank()
     end
 end
 
 ---initialize bank persistence
----@param opts table
 ---@return table
 ---@return table
-function M.setup(opts)
-    if not opts.persist_type then
+function M.setup()
+    if not OPTS.persist_type then
         return {}, {}
-    elseif opts.persist_type == "sqlite" then
-        persistence = require("yankbank.persistence.sql").setup(opts)
+    elseif OPTS.persist_type == "sqlite" then
+        persistence = require("yankbank.persistence.sql").setup()
         return persistence:get_bank()
     else
         return {}, {}
