@@ -11,21 +11,25 @@ local persistence = require("yankbank.persistence")
 ---@param opts table
 function M.add_yank(yanks, reg_types, text, reg_type, opts)
     -- avoid adding empty strings
-    -- TODO: could block adding single characters here
-    if text == "" or text == " " or text == "\n" then
+    if text == "" and text == " " and text == "\n" then
         return
     end
 
-    -- do not update with duplicate values
-    for _, entry in ipairs(yanks) do
+    -- check for duplicate values already inserted
+    for i, entry in ipairs(yanks) do
         if entry == text then
-            return
+            -- remove matched entry so it can be inserted at 1st position
+            table.remove(yanks, i)
+            table.remove(reg_types, i)
+            break
         end
     end
 
     -- add entry to bank
     table.insert(yanks, 1, text)
     table.insert(reg_types, 1, reg_type)
+
+    -- trim table size if necessary
     if #yanks > opts.max_entries then
         table.remove(yanks)
         table.remove(reg_types)
@@ -57,6 +61,7 @@ function M.setup_yank_autocmd(yanks, reg_types, opts)
                 if #yank_text <= 1 then
                     return
                 end
+
                 M.add_yank(yanks, reg_types, yank_text, reg_type, opts)
             end
         end,

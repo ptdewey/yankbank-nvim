@@ -23,6 +23,10 @@ function M.setup(opts)
         return {}, {}
     elseif opts.persist_type == "sqlite" then
         persistence = require("yankbank.persistence.sql").setup(opts)
+        vim.api.nvim_create_user_command("YankView", function()
+            print(vim.inspect(persistence:get()))
+        end, {})
+
         return persistence:get_bank()
     else
         return {}, {}

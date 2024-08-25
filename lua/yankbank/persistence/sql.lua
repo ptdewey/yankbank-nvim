@@ -25,14 +25,21 @@ local data = db.bank
 function data:insert_yank(yank_text, reg_type)
     -- attempt to remove entry if count > 0 (to move potential duplicate)
     if self:count() > 0 then
-        self:remove({ yank_text = yank_text })
+        db:with_open(function()
+            db:eval(
+                "DELETE FROM bank WHERE yank_text = :yank_text",
+                { yank_text = yank_text }
+            )
+        end)
     end
 
-    -- insert entry
-    self:insert({
-        yank_text = yank_text,
-        reg_type = reg_type,
-    })
+    -- insert entry using the eval method with parameterized query to avoid error on 'data:insert()'
+    db:with_open(function()
+        db:eval(
+            "INSERT INTO bank (yank_text, reg_type) VALUES (:yank_text, :reg_type)",
+            { yank_text = yank_text, reg_type = reg_type }
+        )
+    end)
 
     -- attempt to trim database size
     self:trim_size()
@@ -42,7 +49,21 @@ end
 function data:trim_size()
     if self:count() > max_entries then
         -- remove the oldest entry
-        self:remove({ yank_text = self:get()[1].yank_text })
+        local oldest_entry = db:with_open(function()
+            return db:select(
+                "bank",
+                { order_by = { asc = "rowid" }, limit = { 1 } }
+            )[1]
+        end)
+
+        if oldest_entry then
+            db:with_open(function()
+                db:eval(
+                    "DELETE FROM bank WHERE yank_text = :yank_text",
+                    { yank_text = oldest_entry.yank_text }
+                )
+            end)
+        end
     end
 end
 
@@ -61,7 +82,6 @@ function data:get_bank()
 end
 
 -- FIX: correctly handle multiple sessions open at once
--- - fetch database state each time YankBank command is called?
 
 --- set up database persistence
 ---@param opts table
