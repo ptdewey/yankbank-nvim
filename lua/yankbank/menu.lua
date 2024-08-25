@@ -3,6 +3,20 @@ local M = {}
 local data = require("yankbank.data")
 local helpers = require("yankbank.helpers")
 
+-- default plugin keymaps
+local default_keymaps = {
+    navigation_next = "j",
+    navigation_prev = "k",
+    paste = "<CR>",
+    yank = "yy",
+    close = { "<Esc>", "<C-c>", "q" },
+}
+
+-- define default yank register
+local default_registers = {
+    yank_register = "+",
+}
+
 --- Container class for YankBank buffer related variables
 ---@class YankBankBufData
 ---@field bufnr integer
@@ -88,20 +102,6 @@ end
 --- Set key mappings for the popup window
 ---@param b YankBankBufData
 function M.set_keymaps(b)
-    -- default plugin keymaps
-    local default_keymaps = {
-        navigation_next = "j",
-        navigation_prev = "k",
-        paste = "<CR>",
-        yank = "yy",
-        close = { "<Esc>", "<C-c>", "q" }, -- TODO: issues might arise passing non-table single value for this
-    }
-
-    -- define default yank register
-    local default_registers = {
-        yank_register = "+",
-    }
-
     -- key mappings for selection and closing the popup
     local map_opts = { noremap = true, silent = true, buffer = b.bufnr }
 
@@ -189,6 +189,7 @@ function M.set_keymaps(b)
     end, { buffer = b.bufnr })
 
     -- close popup keybinds
+    -- REFACTOR: check if close keybind is string, handle differently
     for _, map in ipairs(k.close) do
         vim.keymap.set("n", map, function()
             vim.api.nvim_win_close(b.win_id, true)

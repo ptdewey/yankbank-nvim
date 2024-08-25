@@ -84,7 +84,7 @@ end
 
 --- remove an entry from the banks table matching input text
 ---@param text string
-function data:remove_match(text)
+function data.remove_match(text)
     db:with_open(function()
         return db:eval(
             "DELETE FROM bank WHERE yank_text = :yank_text",

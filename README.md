@@ -130,6 +130,7 @@ I would personally also recommend setting a keybind to open the menu.
 vim.keymap.set("n", "<leader>y", "<cmd>YankBank<CR>", { noremap = true })
 ```
 
+<!-- TODO: add section for api -->
 
 ## Potential Improvements
 - nvim-cmp integration
