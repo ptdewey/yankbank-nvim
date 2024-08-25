@@ -44,23 +44,9 @@ It will be populated further for each yank or deletion in that session.
 INSTALLATION AND SETUP         *yankbank-nvim-yankbank-installation-and-setup*
 
 
-WITHOUT PERSISTENCE:
+WITH PERSISTENCE (RECOMMENDED)
 
-Lazy:
-
->lua
-    {
-        "ptdewey/yankbank-nvim",
-        config = function()
-            require('yankbank').setup()
-        end,
-    }
-<
-
-
-WITH PERSISTENCE
-
-Lazy:
+Using lazy.nvim
 
 >lua
     {
@@ -70,6 +56,20 @@ Lazy:
             require('yankbank').setup({
                 persist_type = "sqlite",
             })
+        end,
+    }
+<
+
+
+WITHOUT PERSISTENCE:
+
+Using lazy.nvim
+
+>lua
+    {
+        "ptdewey/yankbank-nvim",
+        config = function()
+            require('yankbank').setup()
         end,
     }
 <
@@ -96,22 +96,24 @@ persist_type | string defining persistence type "memory" or "sqlite" |
 EXAMPLE CONFIGURATION
 
 >lua
-    config = function()
-        require('yankbank').setup({
-            max_entries = 9,
-            sep = "",
-            num_behavior = "prefix",
-            focus_gain_poll = true,
-            keymaps = {
-                paste = "<CR>",
-            },
-            num_behavior = "prefix",
-            persist_type = "sqlite",
-            registers = {
-                yank_register = "+",
-            },
-        })
-    end,
+    {
+        "ptdewey/yankbank-nvim",
+        config = function()
+            require('yankbank').setup({
+                max_entries = 9,
+                sep = "-----",
+                num_behavior = "jump",
+                focus_gain_poll = true,
+                persist_type = "sqlite",
+                keymaps = {
+                    paste = "<CR>",
+                },
+                registers = {
+                    yank_register = "+",
+                },
+            })
+        end,
+    }
 <
 
 If no separator is desired, pass in an empty string for `sep`
@@ -123,10 +125,18 @@ navigation with '3j' moving down 3 entries in the bank. - `num_behavior =
 entry 3) - Note: If 'max_entries' is a two-digit number, there will be a delay
 upon pressing numbers that prefix a valid entry.
 
+The 'focus_gain_poll' option allows for enabling an additional autocommand that
+watches for focus gains (refocusing Neovim window), and checks for changes in
+the unnamedplus ('+') register, adding to yankbank when new contents are found.
+This allows for automatically adding text copied from other sources (like a
+browser) to the yankbank without the bank opening trigger. Off by default, but
+I highly recommend enabling it with `focus_gain_poll = true`.
+
 
 PERSISTENCE ~
 
-If persistence between sessions is desired, sqlite.lua will be used to create a
+For the best experience with YankBank, enabling persistence is highly
+recommended. If persistence is enabled, sqlite.lua will be used to create a
 persistent store for recent yanks in the plugin root directory. To utilize
 sqlite persistence, `"kkharji/sqlite.lua"` must be added as a dependency in
 your config, and `persist_type` must be set to `"sqlite"`
@@ -145,18 +155,11 @@ your config, and `persist_type` must be set to `"sqlite"`
     }
 <
 
-The'focus_gain_poll' option allows for enabling an additional autocommand that
-watches for focus gains (refocusing Neovim window), and checks for changes in
-the unnamedplus ('+') register, adding to yankbank when new contents are found.
-This allows for automatically adding text copied from other sources (like a
-browser) to the yankbank without the bank opening trigger. Off by default, but
-I highly recommend enabling it (`focus_gain_poll = true`)
-
 
 USAGE                                           *yankbank-nvim-yankbank-usage*
 
-The popup menu can be opened with the command:`:YankBank`, an entry is pasted
-at the current cursor position by hitting enter, and the menu can be closed by
+Thepopup menu can be opened with the command:`:YankBank`, an entry is pasted at
+the current cursor position by hitting enter, and the menu can be closed by
 hitting escape, ctrl-c, or q. An entry from the menu can also be yanked into
 the unnamedplus register by hitting yy.
 
@@ -170,7 +173,6 @@ I would personally also recommend setting a keybind to open the menu.
 
 POTENTIAL IMPROVEMENTS         *yankbank-nvim-yankbank-potential-improvements*
 
-- Polling on unnamedplus register to populate bank in more intuitive manner (could be enabled as option)
 - nvim-cmp integration
 - fzf integration
 - telescope integration
