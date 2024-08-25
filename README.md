@@ -20,21 +20,9 @@ It will be populated further for each yank or deletion in that session.
 
 ## Installation and Setup
 
-#### Without persistence:
+#### With Persistence (Recommended)
 
-Lazy:
-```lua
-{
-    "ptdewey/yankbank-nvim",
-    config = function()
-        require('yankbank').setup()
-    end,
-}
-```
-
-#### With Persistence
-
-Lazy:
+Using lazy.nvim
 ```lua
 {
     "ptdewey/yankbank-nvim",
@@ -43,6 +31,18 @@ Lazy:
         require('yankbank').setup({
             persist_type = "sqlite",
         })
+    end,
+}
+```
+
+#### Without persistence:
+
+Using lazy.nvim
+```lua
+{
+    "ptdewey/yankbank-nvim",
+    config = function()
+        require('yankbank').setup()
     end,
 }
 ```
@@ -70,22 +70,24 @@ The setup function also supports taking in a table of options:
 #### Example Configuration
 
 ```lua
-config = function()
-    require('yankbank').setup({
-        max_entries = 9,
-        sep = "",
-        num_behavior = "prefix",
-        focus_gain_poll = true,
-        keymaps = {
-            paste = "<CR>",
-        },
-        num_behavior = "prefix",
-        persist_type = "sqlite",
-        registers = {
-            yank_register = "+",
-        },
-    })
-end,
+{
+    "ptdewey/yankbank-nvim",
+    config = function()
+        require('yankbank').setup({
+            max_entries = 9,
+            sep = "-----",
+            num_behavior = "jump",
+            focus_gain_poll = true,
+            persist_type = "sqlite",
+            keymaps = {
+                paste = "<CR>",
+            },
+            registers = {
+                yank_register = "+",
+            },
+        })
+    end,
+}
 ```
 
 If no separator is desired, pass in an empty string for `sep`
@@ -95,8 +97,11 @@ The 'num_behavior' option defines in-popup navigation behavior when hitting numb
 - `num_behavior = "jump"` jumps to entry matching the pressed number key (i.e. '3' jumps to entry 3)
     - Note: If 'max_entries' is a two-digit number, there will be a delay upon pressing numbers that prefix a valid entry.
 
+The 'focus_gain_poll' option allows for enabling an additional autocommand that watches for focus gains (refocusing Neovim window), and checks for changes in the unnamedplus ('+') register, adding to yankbank when new contents are found. This allows for automatically adding text copied from other sources (like a browser) to the yankbank without the bank opening trigger. Off by default, but I highly recommend enabling it with `focus_gain_poll = true`.
+
 ### Persistence
-If persistence between sessions is desired, sqlite.lua will be used to create a persistent store for recent yanks in the plugin root directory.
+For the best experience with YankBank, enabling persistence is highly recommended.
+If persistence is enabled, sqlite.lua will be used to create a persistent store for recent yanks in the plugin root directory.
 To utilize sqlite persistence, `"kkharji/sqlite.lua"` must be added as a dependency in your config, and `persist_type` must be set to `"sqlite"`:
 
 ```lua
@@ -113,7 +118,6 @@ return {
 }
 ```
 
-The 'focus_gain_poll' option allows for enabling an additional autocommand that watches for focus gains (refocusing Neovim window), and checks for changes in the unnamedplus ('+') register, adding to yankbank when new contents are found. This allows for automatically adding text copied from other sources (like a browser) to the yankbank without the bank opening trigger. Off by default, but I highly recommend enabling it (`focus_gain_poll = true`)
 
 ## Usage
 
@@ -128,7 +132,6 @@ vim.keymap.set("n", "<leader>y", "<cmd>YankBank<CR>", { noremap = true })
 
 
 ## Potential Improvements
-- Polling on unnamedplus register to populate bank in more intuitive manner (could be enabled as option)
 - nvim-cmp integration
 - fzf integration
 - telescope integration
