@@ -7,9 +7,7 @@ local persistence = {}
 ---@param reg_type string
 ---@param opts table
 function M.add_entry(entry, reg_type, opts)
-    if not opts.persist_type then
-        return
-    elseif opts.persist_type == "sqlite" then
+    if opts.persist_type == "sqlite" then
         persistence:insert_yank(entry, reg_type)
     end
 end
@@ -23,10 +21,6 @@ function M.setup(opts)
         return {}, {}
     elseif opts.persist_type == "sqlite" then
         persistence = require("yankbank.persistence.sql").setup(opts)
-        vim.api.nvim_create_user_command("YankView", function()
-            print(vim.inspect(persistence:get()))
-        end, {})
-
         return persistence:get_bank()
     else
         return {}, {}

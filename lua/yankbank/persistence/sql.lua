@@ -2,7 +2,8 @@ local M = {}
 
 local sqlite = require("sqlite.db")
 
-local dbdir = vim.fn.stdpath("data") .. "/databases"
+-- local dbdir = vim.fn.stdpath("data") .. "/databases"
+local dbdir = debug.getinfo(1).source:sub(2):match("(.*/).*/.*/.*/") or "./"
 local max_entries = 10
 
 ---@class YankBankDB:sqlite_db
@@ -89,9 +90,14 @@ end
 function M.setup(opts)
     max_entries = opts.max_entries
 
-    -- TODO: move database into plugin directory instead to allow easier uninstall
-    if vim.fn.isdirectory(dbdir) == 0 then
-        vim.fn.mkdir(dbdir, "p")
+    vim.api.nvim_create_user_command("YankBankClearDB", function()
+        data:remove()
+    end, {})
+
+    if opts.debug == true then
+        vim.api.nvim_create_user_command("YankBankViewDB", function()
+            print(vim.inspect(data:get()))
+        end, {})
     end
 
     return data
