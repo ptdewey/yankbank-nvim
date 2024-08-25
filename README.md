@@ -64,7 +64,7 @@ The setup function also supports taking in a table of options:
 | focus_gain_poll | boolean | `nil` |
 | registers | table container for register overrides | `{ }` |
 | registers.yank_register | default register to yank from popup to | `"+"` |
-| persist_type | string defining persistence type "memory" or "sqlite" | `"memory"` |
+| persist_type | string defining persistence type "sqlite" or nil | `nil` |
 
 
 #### Example Configuration

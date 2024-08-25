@@ -1,22 +1,20 @@
 local M = {}
 
----reformat yanks table for popup
----@param yanks table
----@param sep string
+--- reformat yanks table for popup
+---@param opts table
 ---@return table, table
-function M.get_display_lines(yanks, sep)
+function M.get_display_lines(opts)
     local display_lines = {}
     local line_yank_map = {}
     local yank_num = 0
 
     -- calculate the maximum width needed for the yank numbers
-    local max_digits = #tostring(#yanks)
+    local max_digits = #tostring(#YANKS)
 
     -- assumes yanks is table of strings
-    for i, yank in ipairs(yanks) do
+    for i, yank in ipairs(YANKS) do
         yank_num = yank_num + 1
 
-        -- FIX: there were changes here, might need further changes
         local yank_lines = yank
         if type(yank) == "string" then
             -- remove trailing newlines
@@ -51,12 +49,12 @@ function M.get_display_lines(yanks, sep)
             table.insert(line_yank_map, i)
         end
 
-        if i < #yanks then
+        if i < #YANKS then
             -- Add a visual separator between yanks, aligned with the yank content
-            if sep ~= "" then
+            if opts.sep ~= "" then
                 table.insert(
                     display_lines,
-                    string.rep(" ", max_digits + 2) .. sep
+                    string.rep(" ", max_digits + 2) .. opts.sep
                 )
             end
             table.insert(line_yank_map, false)

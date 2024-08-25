@@ -1,6 +1,6 @@
 local M = {}
 
--- navigate to the next numbered item
+--- navigate to the next numbered item
 ---@param steps integer
 function M.next_numbered_item(steps)
     steps = steps or 1 -- Default to 1 if no steps are provided
@@ -23,7 +23,7 @@ function M.next_numbered_item(steps)
     vim.api.nvim_win_set_cursor(0, { last_entry, 0 })
 end
 
--- navigate to the previous numbered item
+--- navigate to the previous numbered item
 ---@param steps integer
 function M.prev_numbered_item(steps)
     steps = steps or 1 -- Default to 1 if no steps are provided
@@ -43,7 +43,7 @@ function M.prev_numbered_item(steps)
     vim.api.nvim_win_set_cursor(0, { 1, 0 })
 end
 
--- customized paste function that functions like 'p'
+--- customized paste function that functions like 'p'
 ---@param text string|table
 ---@param reg_type string
 function M.smart_paste(text, reg_type)
@@ -61,10 +61,6 @@ function M.smart_paste(text, reg_type)
         lines = text
     end
 
-    -- remove last newline character to replicate base put behavior
-    -- if lines[#lines] == "" then
-    --     table.remove(lines)
-    -- end
     vim.api.nvim_put(lines, reg_type, true, true)
 end
 

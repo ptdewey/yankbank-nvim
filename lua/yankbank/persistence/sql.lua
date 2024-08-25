@@ -90,6 +90,8 @@ function M.setup(opts)
 
     vim.api.nvim_create_user_command("YankBankClearDB", function()
         data:remove()
+        YANKS = {}
+        REG_TYPES = {}
     end, {})
 
     if opts.debug == true then
