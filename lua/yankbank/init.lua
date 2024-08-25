@@ -24,8 +24,9 @@ local default_opts = {
 
 --- wrapper function for main plugin functionality
 ---@param opts table
---- TODO: read from persistent database if sql persist is set (allow multi-session sync)
 local function show_yank_bank(opts)
+    yanks = persistence.get_yanks(opts) or yanks
+
     -- initialize buffer and populate bank
     local bufnr, display_lines, line_yank_map =
         menu.create_and_fill_buffer(yanks, reg_types, opts)

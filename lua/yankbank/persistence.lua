@@ -12,6 +12,14 @@ function M.add_entry(entry, reg_type, opts)
     end
 end
 
+--- get current state of yanks in persistent storage
+---@param opts table
+function M.get_yanks(opts)
+    if opts.persist_type == "sqlite" then
+        return persistence:get_bank()
+    end
+end
+
 ---initialize bank persistence
 ---@param opts table
 ---@return table

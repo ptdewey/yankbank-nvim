@@ -82,8 +82,6 @@ function data:get_bank()
     return yanks, reg_types
 end
 
--- FIX: correctly handle multiple sessions open at once
-
 --- set up database persistence
 ---@param opts table
 ---@return sqlite_tbl data
