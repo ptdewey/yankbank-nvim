@@ -43,10 +43,11 @@ function M.prev_numbered_item(steps)
     vim.api.nvim_win_set_cursor(0, { 1, 0 })
 end
 
---- customized paste function that functions like 'p'
+--- customized paste function that functions like 'p' or 'P'
 ---@param text string|table
 ---@param reg_type string
-function M.smart_paste(text, reg_type)
+---@param after boolean define if text should be pasted after 'p' or before 'P'
+function M.smart_paste(text, reg_type, after)
     local lines = {}
     if type(text) == "string" then
         -- convert text string to string list
@@ -61,7 +62,7 @@ function M.smart_paste(text, reg_type)
         lines = text
     end
 
-    vim.api.nvim_put(lines, reg_type, true, true)
+    vim.api.nvim_put(lines, reg_type, after, true)
 end
 
 return M

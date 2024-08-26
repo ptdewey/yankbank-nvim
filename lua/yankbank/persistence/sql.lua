@@ -102,15 +102,15 @@ end
 --- set up database persistence
 ---@return sqlite_tbl data
 function M.setup()
-    max_entries = OPTS.max_entries
+    max_entries = YB_OPTS.max_entries
 
     vim.api.nvim_create_user_command("YankBankClearDB", function()
         data:remove()
-        YANKS = {}
-        REG_TYPES = {}
+        YB_YANKS = {}
+        YB_REG_TYPES = {}
     end, {})
 
-    if OPTS.debug == true then
+    if YB_OPTS.debug == true then
         vim.api.nvim_create_user_command("YankBankViewDB", function()
             print(vim.inspect(data:get()))
         end, {})

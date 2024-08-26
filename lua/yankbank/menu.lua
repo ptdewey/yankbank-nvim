@@ -8,6 +8,7 @@ local default_keymaps = {
     navigation_next = "j",
     navigation_prev = "k",
     paste = "<CR>",
+    paste_back = "P",
     yank = "yy",
     close = { "<Esc>", "<C-c>", "q" },
 }
@@ -16,6 +17,16 @@ local default_keymaps = {
 local default_registers = {
     yank_register = "+",
 }
+
+-- merge default and options keymap tables
+local k = vim.tbl_deep_extend("force", default_keymaps, YB_OPTS.keymaps or {})
+
+-- merge default and options register tables
+YB_OPTS.registers =
+    vim.tbl_deep_extend("force", default_registers, YB_OPTS.registers or {})
+
+-- check table for number behavior option (prefix or jump, default to prefix)
+YB_OPTS.num_behavior = YB_OPTS.num_behavior or "prefix"
 
 --- Container class for YankBank buffer related variables
 ---@class YankBankBufData
@@ -28,7 +39,7 @@ local default_registers = {
 ---@return YankBankBufData?
 function M.create_and_fill_buffer()
     -- stop if yanks or register types table is empty
-    if #YANKS == 0 or #REG_TYPES == 0 then
+    if #YB_YANKS == 0 or #YB_REG_TYPES == 0 then
         print("No yanks to show.")
         return nil
     end
@@ -105,18 +116,8 @@ function M.set_keymaps(b)
     -- key mappings for selection and closing the popup
     local map_opts = { noremap = true, silent = true, buffer = b.bufnr }
 
-    -- merge default and options keymap tables
-    local k = vim.tbl_deep_extend("force", default_keymaps, OPTS.keymaps or {})
-
-    -- merge default and options keymap tables
-    OPTS.registers =
-        vim.tbl_deep_extend("force", default_registers, OPTS.registers or {})
-
-    -- check table for number behavior option (prefix or jump, default to prefix)
-    OPTS.num_behavior = OPTS.num_behavior or "prefix"
-
     -- popup buffer navigation binds
-    if OPTS.num_behavior == "prefix" then
+    if YB_OPTS.num_behavior == "prefix" then
         vim.keymap.set("n", k.navigation_next, function()
             local count = vim.v.count1 > 0 and vim.v.count1 or 1
             helpers.next_numbered_item(count)
@@ -126,25 +127,25 @@ function M.set_keymaps(b)
             local count = vim.v.count1 > 0 and vim.v.count1 or 1
             helpers.prev_numbered_item(count)
             return ""
-        end, { noremap = true, silent = true, buffer = b.bufnr })
+        end, map_opts)
     else
         vim.keymap.set(
             "n",
             k.navigation_next,
             helpers.next_numbered_item,
-            { noremap = true, silent = true, buffer = b.bufnr }
+            map_opts
         )
         vim.keymap.set(
             "n",
             k.navigation_prev,
             helpers.prev_numbered_item,
-            { noremap = true, silent = true, buffer = b.bufnr }
+            map_opts
         )
     end
 
-    -- Map number keys to jump to entry if num_behavior is 'jump'
-    if OPTS.num_behavior == "jump" then
-        for i = 1, OPTS.max_entries do
+    -- map number keys to jump to entry if num_behavior is 'jump'
+    if YB_OPTS.num_behavior == "jump" then
+        for i = 1, YB_OPTS.max_entries do
             vim.keymap.set("n", tostring(i), function()
                 local target_line = nil
                 for line_num, yank_num in pairs(b.line_yank_map) do
@@ -166,27 +167,44 @@ function M.set_keymaps(b)
         -- use the mapping to find the original yank
         local yankIndex = b.line_yank_map[cursor]
         if yankIndex then
-            -- retrieve the full yank, including all lines
-            local text = YANKS[yankIndex]
-
             -- close window upon selection
             vim.api.nvim_win_close(b.win_id, true)
-            helpers.smart_paste(text, REG_TYPES[yankIndex])
+            helpers.smart_paste(
+                YB_YANKS[yankIndex],
+                YB_REG_TYPES[yankIndex],
+                true
+            )
         else
             print("Error: Invalid selection")
         end
-    end, { buffer = b.bufnr })
+    end, map_opts)
+    -- paste backwards
+    vim.keymap.set("n", k.paste_back, function()
+        local cursor = vim.api.nvim_win_get_cursor(b.win_id)[1]
+        -- use the mapping to find the original yank
+        local yankIndex = b.line_yank_map[cursor]
+        if yankIndex then
+            -- close window upon selection
+            vim.api.nvim_win_close(b.win_id, true)
+            helpers.smart_paste(
+                YB_YANKS[yankIndex],
+                YB_REG_TYPES[yankIndex],
+                false
+            )
+        else
+            print("Error: Invalid selection")
+        end
+    end, map_opts)
 
     -- bind yank behavior
     vim.keymap.set("n", k.yank, function()
         local cursor = vim.api.nvim_win_get_cursor(b.win_id)[1]
         local yankIndex = b.line_yank_map[cursor]
         if yankIndex then
-            local text = YANKS[yankIndex]
-            vim.fn.setreg(OPTS.registers.yank_register, text)
+            vim.fn.setreg(YB_OPTS.registers.yank_register, YB_YANKS[yankIndex])
             vim.api.nvim_win_close(b.win_id, true)
         end
-    end, { buffer = b.bufnr })
+    end, map_opts)
 
     -- close popup keybinds
     -- REFACTOR: check if close keybind is string, handle differently

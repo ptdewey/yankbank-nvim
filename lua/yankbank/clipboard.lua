@@ -13,23 +13,23 @@ function M.add_yank(text, reg_type)
     end
 
     -- check for duplicate values already inserted
-    for i, entry in ipairs(YANKS) do
+    for i, entry in ipairs(YB_YANKS) do
         if entry == text then
             -- remove matched entry so it can be inserted at 1st position
-            table.remove(YANKS, i)
-            table.remove(REG_TYPES, i)
+            table.remove(YB_YANKS, i)
+            table.remove(YB_REG_TYPES, i)
             break
         end
     end
 
     -- add entry to bank
-    table.insert(YANKS, 1, text)
-    table.insert(REG_TYPES, 1, reg_type)
+    table.insert(YB_YANKS, 1, text)
+    table.insert(YB_REG_TYPES, 1, reg_type)
 
     -- trim table size if necessary
-    if #YANKS > OPTS.max_entries then
-        table.remove(YANKS)
-        table.remove(REG_TYPES)
+    if #YB_YANKS > YB_OPTS.max_entries then
+        table.remove(YB_YANKS)
+        table.remove(YB_REG_TYPES)
     end
 
     -- add entry to persistent store
@@ -62,7 +62,7 @@ function M.setup_yank_autocmd()
     })
 
     -- poll registers when vim is focused (check for new clipboard activity)
-    if OPTS.focus_gain_poll == true then
+    if YB_OPTS.focus_gain_poll == true then
         vim.api.nvim_create_autocmd("FocusGained", {
             callback = function()
                 -- get register information

@@ -1,13 +1,14 @@
 local M = {}
 
+-- define global variables
+YB_YANKS = {}
+YB_REG_TYPES = {}
+YB_OPTS = {}
+
 -- local imports
 local menu = require("yankbank.menu")
 local clipboard = require("yankbank.clipboard")
 local persistence = require("yankbank.persistence")
-
-YANKS = {}
-REG_TYPES = {}
-OPTS = {}
 
 -- default plugin options
 local default_opts = {
@@ -24,7 +25,7 @@ local default_opts = {
 
 --- wrapper function for main plugin functionality
 local function show_yank_bank()
-    YANKS = persistence.get_yanks() or YANKS
+    YB_YANKS = persistence.get_yanks() or YB_YANKS
 
     -- initialize buffer and populate bank
     local buf_data = menu.create_and_fill_buffer()
@@ -43,10 +44,10 @@ end
 ---@param opts? table
 function M.setup(opts)
     -- merge opts with default options table
-    OPTS = vim.tbl_deep_extend("keep", opts or {}, default_opts)
+    YB_OPTS = vim.tbl_deep_extend("keep", opts or {}, default_opts)
 
     -- enable persistence based on opts (needs to be called before autocmd setup)
-    YANKS, REG_TYPES = persistence.setup()
+    YB_YANKS, YB_REG_TYPES = persistence.setup()
 
     -- create clipboard autocmds
     clipboard.setup_yank_autocmd()

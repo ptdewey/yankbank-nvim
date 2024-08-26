@@ -5,8 +5,8 @@ local M = {}
 ---@return table
 function M.get_entry(i)
     return {
-        yank_text = YANKS[i],
-        reg_type = REG_TYPES[i],
+        yank_text = YB_YANKS[i],
+        reg_type = YB_REG_TYPES[i],
     }
 end
 
@@ -14,10 +14,10 @@ end
 ---@return table
 function M.get_all()
     local out = {}
-    for i, v in ipairs(YANKS) do
+    for i, v in ipairs(YB_YANKS) do
         table.insert(out, {
             yank_text = v,
-            reg_type = REG_TYPES[i],
+            reg_type = YB_REG_TYPES[i],
         })
     end
     return out
@@ -33,9 +33,9 @@ end
 --- remove entry from yankbank by index
 ---@param i integer index to remove
 function M.remove_entry(i)
-    local yank_text = table.remove(YANKS, i)
-    table.remove(REG_TYPES, i)
-    if OPTS.persist_type == "sqlite" then
+    local yank_text = table.remove(YB_YANKS, i)
+    table.remove(YB_REG_TYPES, i)
+    if YB_OPTS.persist_type == "sqlite" then
         require("yankbank.persistence.sql").data().remove_match(yank_text)
     end
 end

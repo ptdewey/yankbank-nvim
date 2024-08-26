@@ -8,10 +8,10 @@ function M.get_display_lines()
     local yank_num = 0
 
     -- calculate the maximum width needed for the yank numbers
-    local max_digits = #tostring(#YANKS)
+    local max_digits = #tostring(#YB_YANKS)
 
     -- assumes yanks is table of strings
-    for i, yank in ipairs(YANKS) do
+    for i, yank in ipairs(YB_YANKS) do
         yank_num = yank_num + 1
 
         local yank_lines = yank
@@ -48,12 +48,12 @@ function M.get_display_lines()
             table.insert(line_yank_map, i)
         end
 
-        if i < #YANKS then
+        if i < #YB_YANKS then
             -- Add a visual separator between yanks, aligned with the yank content
-            if OPTS.sep ~= "" then
+            if YB_OPTS.sep ~= "" then
                 table.insert(
                     display_lines,
-                    string.rep(" ", max_digits + 2) .. OPTS.sep
+                    string.rep(" ", max_digits + 2) .. YB_OPTS.sep
                 )
             end
             table.insert(line_yank_map, false)
