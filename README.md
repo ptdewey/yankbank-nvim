@@ -58,6 +58,7 @@ The setup function also supports taking in a table of options:
 | keymaps.navigation_next | string | `"j"` |
 | keymaps.navigation_prev | string | `"k"` |
 | keymaps.paste | string | `"<CR>"` |
+| keymaps.paste_back | string | `"P"` |
 | keymaps.yank | string | `"yy"` |
 | keymaps.close | table of strings | `{ "<Esc>", "<C-c>", "q" }` |
 | num_behavior | string defining jump behavior "prefix" or "jump" | `"prefix"` |
@@ -81,6 +82,7 @@ The setup function also supports taking in a table of options:
             persist_type = "sqlite",
             keymaps = {
                 paste = "<CR>",
+                paste_back = "P",
             },
             registers = {
                 yank_register = "+",
@@ -118,7 +120,6 @@ return {
 }
 ```
 
-
 ## Usage
 
 The popup menu can be opened with the command:`:YankBank`, an entry is pasted at the current cursor position by hitting enter, and the menu can be closed by hitting escape, ctrl-c, or q.
@@ -130,7 +131,32 @@ I would personally also recommend setting a keybind to open the menu.
 vim.keymap.set("n", "<leader>y", "<cmd>YankBank<CR>", { noremap = true })
 ```
 
-<!-- TODO: add section for api -->
+---
+
+## API (WIP)
+
+Some plugin internals are also accessible via the YankBank api.
+
+Examples:
+```lua
+-- get the 2nd entry in the bank
+---@param i integer index to get
+-- output format: { yank_text = "entry", reg_type = "v" }
+local e = require("yankbank.api").get_entry(2)
+
+-- add an entry to the bank
+---@param yank_text string yank text to add to YANKS table
+---@param reg_type string register type "v", "V", or "^V" (visual, v-line, v-block respectively)
+require("yankbank.api").add_entry("yank_text", "reg_type")
+
+-- remove an entry from the bank by index
+---@param i integer index to remove
+require("yankbank.api").remove_entry(1)
+```
+
+For more details about the API see [lua/yankbank/api.lua](lua/yankbank/api.lua)
+
+---
 
 ## Potential Improvements
 - nvim-cmp integration
