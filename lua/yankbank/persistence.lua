@@ -22,14 +22,15 @@ end
 ---initialize bank persistence
 ---@return table
 ---@return table
+---@return table
 function M.setup()
     if not YB_OPTS.persist_type then
-        return {}, {}
+        return {}, {}, {}
     elseif YB_OPTS.persist_type == "sqlite" then
         persistence = require("yankbank.persistence.sql").setup()
         return persistence:get_bank()
     else
-        return {}, {}
+        return {}, {}, {}
     end
 end
 

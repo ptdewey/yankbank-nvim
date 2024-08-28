@@ -1,6 +1,6 @@
 local M = {}
 
-local sqlite = require("sqlite.db")
+local sqlite = require("sqlite")
 
 -- local dbdir = vim.fn.stdpath("data") .. "/databases"
 local dbdir = debug.getinfo(1).source:sub(2):match("(.*/).*/.*/.*/") or "./"
@@ -75,19 +75,20 @@ end
 function data:trim_size()
     if self:count() > max_entries then
         -- remove the oldest entry
-        local oldest_entry = db:with_open(function()
+        local e = db:with_open(function()
+            -- TODO: figure out what to do if all entries are pinned
             return db:select("bank", {
                 where = { pinned = 0 },
                 order_by = { asc = "rowid" },
-                limit = { 1 },
+                limit = 1,
             })[1]
         end)
 
-        if oldest_entry then
+        if e then
             db:with_open(function()
                 db:eval(
                     "DELETE FROM bank WHERE yank_text = :yank_text",
-                    { yank_text = oldest_entry.yank_text }
+                    { yank_text = e.yank_text }
                 )
             end)
         end
@@ -95,17 +96,18 @@ function data:trim_size()
 end
 
 --- get sqlite bank contents
----@return table yanks, table reg_types
+---@return table yanks, table reg_types, table pins
 function data:get_bank()
-    local yanks, reg_types = {}, {}
+    local yanks, reg_types, pins = {}, {}, {}
 
     local bank = self:get()
     for _, entry in ipairs(bank) do
         table.insert(yanks, 1, entry.yank_text)
         table.insert(reg_types, 1, entry.reg_type)
+        table.insert(pins, 1, entry.pinned)
     end
 
-    return yanks, reg_types
+    return yanks, reg_types, pins
 end
 
 --- remove an entry from the banks table matching input text
@@ -143,6 +145,7 @@ end
 function data.unpin(text, reg_type)
     return db:with_open(function()
         -- TODO: always returns true or nothing
+        -- - figure out how to return if updated or remove return
         return db:eval(
             "UPDATE bank SET pinned = 0 WHERE yank_text = :yank_text and reg_type = :reg_type",
             { yank_text = text, reg_type = reg_type }

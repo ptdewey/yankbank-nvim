@@ -47,9 +47,13 @@ end
 ---
 ---@param i integer index to pin
 function M.pin_entry(i)
-    -- TODO: check persistence mode, max_entries
-    -- - add third table YB_PINS to keep track of pins
-    -- TODO: show pins differently in popup
+    if i > #YB_PINS then
+        return
+    end
+
+    -- TODO: show pins differently in popup (could use different hl_groups for pinned entries?)
+    YB_PINS[i] = 1
+
     if YB_OPTS.persist_type == "sqlite" then
         return require("yankbank.persistence.sql")
             .data()
@@ -61,8 +65,13 @@ end
 ---
 ---@param i integer index to unpin
 function M.unpin_entry(i)
-    -- TODO: check persistence mode, max_entries
-    -- - in sql.lua, add 3rd field (bool) pinned
+    if i > #YB_PINS then
+        return
+    end
+
+    -- TODO: update popup pin highlight
+    YB_PINS[i] = 0
+
     if YB_OPTS.persist_type == "sqlite" then
         return require("yankbank.persistence.sql")
             .data()
@@ -71,6 +80,5 @@ function M.unpin_entry(i)
 end
 
 -- TODO: individual popup keymap setting functions
--- - could just update opts table that is passed into set_keymaps
 
 return M

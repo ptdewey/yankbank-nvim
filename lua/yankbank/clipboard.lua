@@ -2,6 +2,7 @@ local M = {}
 
 -- import persistence module
 local persistence = require("yankbank.persistence")
+local utils = require("yankbank.utils")
 
 --- Function to add yanked text to table
 ---@param text string
@@ -13,27 +14,44 @@ function M.add_yank(text, reg_type, pin)
         return
     end
 
+    local is_pinned = 0
+
     -- check for duplicate values already inserted
     for i, entry in ipairs(YB_YANKS) do
         if entry == text then
             -- remove matched entry so it can be inserted at 1st position
-            -- TODO: pin handling in global tables
             table.remove(YB_YANKS, i)
             table.remove(YB_REG_TYPES, i)
+            is_pinned = table.remove(YB_PINS, i)
             break
         end
     end
 
+    -- override is_pinned if pin is set
+    is_pinned = (pin == 1 or pin == true) and 1
+        or (pin == 0 or pin == false) and 0
+        or is_pinned
+
     -- add entry to bank
-    -- TODO: pin handling in global tables
     table.insert(YB_YANKS, 1, text)
     table.insert(YB_REG_TYPES, 1, reg_type)
+    table.insert(YB_PINS, 1, is_pinned)
 
     -- trim table size if necessary
     if #YB_YANKS > YB_OPTS.max_entries then
-        -- TODO: pin handling in global tables
-        table.remove(YB_YANKS)
-        table.remove(YB_REG_TYPES)
+        local i = utils.last_zero_entry(YB_PINS)
+
+        if not i or i == 1 then
+            -- WARN: undefined behavior
+            print(
+                "Warning: all YankBank entries are pinned, insertion behavior is undefined when all entries are pinned."
+            )
+        else
+            -- remove last non-pinned entry
+            table.remove(YB_YANKS, i)
+            table.remove(YB_REG_TYPES, i)
+            table.remove(YB_PINS, i)
+        end
     end
 
     -- add entry to persistent store
