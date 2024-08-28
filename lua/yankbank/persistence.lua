@@ -5,9 +5,10 @@ local persistence = {}
 ---add entry from bank to
 ---@param entry string
 ---@param reg_type string
-function M.add_entry(entry, reg_type)
+---@param pin integer|boolean?
+function M.add_entry(entry, reg_type, pin)
     if YB_OPTS.persist_type == "sqlite" then
-        persistence:insert_yank(entry, reg_type)
+        persistence:insert_yank(entry, reg_type, pin)
     end
 end
 

@@ -14,6 +14,7 @@ local db = sqlite({
         -- yanked text should be unique and be primary key
         yank_text = { "text", unique = true, primary = true, required = true },
         reg_type = { "text", required = true },
+        pinned = { "integer", required = true, default = 0 },
     },
 })
 
@@ -23,22 +24,46 @@ local data = db.bank
 --- insert yank entry into database
 ---@param yank_text string yanked text
 ---@param reg_type string register type
-function data:insert_yank(yank_text, reg_type)
+---@param pin integer|boolean? pin status of inserted entry
+function data:insert_yank(yank_text, reg_type, pin)
     -- attempt to remove entry if count > 0 (to move potential duplicate)
+    local is_pinned = 0
     if self:count() > 0 then
         db:with_open(function()
+            -- check if entry exists in db
+            local res = db:select("bank", {
+                where = {
+                    yank_text = yank_text,
+                    reg_type = reg_type,
+                },
+            })
+
+            -- if result is empty, proceed to insertion
+            if #res == 0 then
+                return
+            end
+
+            -- entry found, get pin status
+            is_pinned = res[1].pinned
+
+            -- remove entry from db so it can be moved to first position
             db:eval(
-                "DELETE FROM bank WHERE yank_text = :yank_text",
-                { yank_text = yank_text }
+                "DELETE FROM bank WHERE yank_text = :yank_text and reg_type = :reg_type",
+                { yank_text = yank_text, reg_type = reg_type }
             )
         end)
     end
 
+    -- override is_pinned if pin param is set, default to is_pinned otherwise
+    is_pinned = (pin == 1 or pin == true) and 1
+        or (pin == 0 or pin == false) and 0
+        or is_pinned
+
     -- insert entry using the eval method with parameterized query to avoid error on 'data:insert()'
     db:with_open(function()
         db:eval(
-            "INSERT INTO bank (yank_text, reg_type) VALUES (:yank_text, :reg_type)",
-            { yank_text = yank_text, reg_type = reg_type }
+            "INSERT INTO bank (yank_text, reg_type, pinned) VALUES (:yank_text, :reg_type, :pinned)",
+            { yank_text = yank_text, reg_type = reg_type, pinned = is_pinned }
         )
     end)
 
@@ -51,10 +76,11 @@ function data:trim_size()
     if self:count() > max_entries then
         -- remove the oldest entry
         local oldest_entry = db:with_open(function()
-            return db:select(
-                "bank",
-                { order_by = { asc = "rowid" }, limit = { 1 } }
-            )[1]
+            return db:select("bank", {
+                where = { pinned = 0 },
+                order_by = { asc = "rowid" },
+                limit = { 1 },
+            })[1]
         end)
 
         if oldest_entry then
@@ -84,11 +110,42 @@ end
 
 --- remove an entry from the banks table matching input text
 ---@param text string
-function data.remove_match(text)
+---@param reg_type string
+function data.remove_match(text, reg_type)
     db:with_open(function()
         return db:eval(
-            "DELETE FROM bank WHERE yank_text = :yank_text",
-            { yank_text = text }
+            "DELETE FROM bank WHERE yank_text = :yank_text and reg_type = :reg_type",
+            { yank_text = text, reg_type = reg_type }
+        )
+    end)
+end
+
+--- pin entry in yankbank to prevent removal
+---@param text string text to match and pin
+---@param reg_type string reg_type corresponding to text
+---@return boolean
+function data.pin(text, reg_type)
+    return db:with_open(function()
+        -- TODO: always returns true or nothing
+        return (
+            db:eval(
+                "UPDATE bank SET pinned = 1 WHERE yank_text = :yank_text and reg_type = :reg_type",
+                { yank_text = text, reg_type = reg_type }
+            )
+        )
+    end)
+end
+
+--- unpin entry in yankbank to prevent removal
+---@param text string
+---@param reg_type string reg_type corresponding to text
+---@return boolean
+function data.unpin(text, reg_type)
+    return db:with_open(function()
+        -- TODO: always returns true or nothing
+        return db:eval(
+            "UPDATE bank SET pinned = 0 WHERE yank_text = :yank_text and reg_type = :reg_type",
+            { yank_text = text, reg_type = reg_type }
         )
     end)
 end
@@ -105,7 +162,7 @@ function M.setup()
     max_entries = YB_OPTS.max_entries
 
     vim.api.nvim_create_user_command("YankBankClearDB", function()
-        data:remove()
+        data:drop()
         YB_YANKS = {}
         YB_REG_TYPES = {}
     end, {})

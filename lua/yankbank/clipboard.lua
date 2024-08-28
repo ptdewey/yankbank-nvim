@@ -6,7 +6,8 @@ local persistence = require("yankbank.persistence")
 --- Function to add yanked text to table
 ---@param text string
 ---@param reg_type string
-function M.add_yank(text, reg_type)
+---@param pin integer|boolean?
+function M.add_yank(text, reg_type, pin)
     -- avoid adding empty strings
     if text == "" and text == " " and text == "\n" then
         return
@@ -16,6 +17,7 @@ function M.add_yank(text, reg_type)
     for i, entry in ipairs(YB_YANKS) do
         if entry == text then
             -- remove matched entry so it can be inserted at 1st position
+            -- TODO: pin handling in global tables
             table.remove(YB_YANKS, i)
             table.remove(YB_REG_TYPES, i)
             break
@@ -23,17 +25,19 @@ function M.add_yank(text, reg_type)
     end
 
     -- add entry to bank
+    -- TODO: pin handling in global tables
     table.insert(YB_YANKS, 1, text)
     table.insert(YB_REG_TYPES, 1, reg_type)
 
     -- trim table size if necessary
     if #YB_YANKS > YB_OPTS.max_entries then
+        -- TODO: pin handling in global tables
         table.remove(YB_YANKS)
         table.remove(YB_REG_TYPES)
     end
 
     -- add entry to persistent store
-    persistence.add_entry(text, reg_type)
+    persistence.add_entry(text, reg_type, pin)
 end
 
 --- autocommand to listen for yank events
