@@ -31,15 +31,13 @@ function data:insert_yank(yank_text, reg_type, pin)
     if self:count() > 0 then
         db:with_open(function()
             -- check if entry exists in db
-            local res = db:select("bank", {
-                where = {
-                    yank_text = yank_text,
-                    reg_type = reg_type,
-                },
-            })
+            local res = db:eval(
+                "SELECT * FROM bank WHERE yank_text = :yank_text and reg_type = :reg_type",
+                { yank_text = yank_text, reg_type = reg_type }
+            )
 
-            -- if result is empty, proceed to insertion
-            if #res == 0 then
+            -- if result is empty (eval returns boolean), proceed to insertion
+            if type(res) == "boolean" then
                 return
             end
 
@@ -72,11 +70,11 @@ function data:insert_yank(yank_text, reg_type, pin)
 end
 
 --- trim database size if it exceeds max_entries option
+--- WARN: if all entries are pinned, behavior is undefined
 function data:trim_size()
     if self:count() > max_entries then
         -- remove the oldest entry
         local e = db:with_open(function()
-            -- TODO: figure out what to do if all entries are pinned
             return db:select("bank", {
                 where = { pinned = 0 },
                 order_by = { asc = "rowid" },
