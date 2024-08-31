@@ -1,4 +1,4 @@
-*yankbank-nvim.txt*       For Neovim >= 0.7.0      Last change: 2024 August 26
+*yankbank-nvim.txt*       For Neovim >= 0.7.0      Last change: 2024 August 31
 
 ==============================================================================
 Table of Contents                            *yankbank-nvim-table-of-contents*
