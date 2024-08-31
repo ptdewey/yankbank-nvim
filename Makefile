@@ -4,6 +4,6 @@ fmt:
 
 lint:
 	echo "Linting lua/yankbank..."
-	luacheck lua/ --globals vim YB_YANKS YB_REG_TYPES YB_OPTS
+	luacheck lua/ --globals vim YB_YANKS YB_REG_TYPES YB_OPTS YB_PINS
 
 pr-ready: fmt lint

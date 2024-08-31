@@ -3,6 +3,7 @@ local M = {}
 -- define global variables
 YB_YANKS = {}
 YB_REG_TYPES = {}
+YB_PINS = {}
 YB_OPTS = {}
 
 -- local imports
@@ -47,7 +48,7 @@ function M.setup(opts)
     YB_OPTS = vim.tbl_deep_extend("keep", opts or {}, default_opts)
 
     -- enable persistence based on opts (needs to be called before autocmd setup)
-    YB_YANKS, YB_REG_TYPES = persistence.setup()
+    YB_YANKS, YB_REG_TYPES, YB_PINS = persistence.setup()
 
     -- create clipboard autocmds
     clipboard.setup_yank_autocmd()
