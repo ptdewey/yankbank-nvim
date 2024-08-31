@@ -1,6 +1,6 @@
 local M = {}
 
---- DOC:
+--- get the last zero entry in a table
 ---
 ---@param t table
 ---@return integer?

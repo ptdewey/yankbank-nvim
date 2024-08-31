@@ -8,6 +8,7 @@ local max_entries = 10
 
 ---@class YankBankDB:sqlite_db
 ---@field bank sqlite_tbl
+---@field bank sqlite_tbl
 local db = sqlite({
     uri = dbdir .. "/yankbank.db",
     bank = {
@@ -21,6 +22,23 @@ local db = sqlite({
 ---@class sqlite_tbl
 local data = db.bank
 
+-- NOTE: escape and unescape query text
+-- TODO: adjust to only escape text that matches function syntax
+---
+---@param content string
+---@return string
+function M.escape(content)
+    return string.format("__ESCAPED__'%s'", content)
+end
+
+---
+---@param content string
+---@return string
+---@return integer?
+function M.unescape(content)
+    return content:gsub("^__ESCAPED__'(.*)'$", "%1")
+end
+
 --- insert yank entry into database
 ---@param yank_text string yanked text
 ---@param reg_type string register type
@@ -33,7 +51,7 @@ function data:insert_yank(yank_text, reg_type, pin)
             -- check if entry exists in db
             local res = db:eval(
                 "SELECT * FROM bank WHERE yank_text = :yank_text and reg_type = :reg_type",
-                { yank_text = yank_text, reg_type = reg_type }
+                { yank_text = M.escape(yank_text), reg_type = reg_type }
             )
 
             -- if result is empty (eval returns boolean), proceed to insertion
@@ -47,7 +65,7 @@ function data:insert_yank(yank_text, reg_type, pin)
             -- remove entry from db so it can be moved to first position
             db:eval(
                 "DELETE FROM bank WHERE yank_text = :yank_text and reg_type = :reg_type",
-                { yank_text = yank_text, reg_type = reg_type }
+                { yank_text = M.escape(yank_text), reg_type = reg_type }
             )
         end)
     end
@@ -61,7 +79,11 @@ function data:insert_yank(yank_text, reg_type, pin)
     db:with_open(function()
         db:eval(
             "INSERT INTO bank (yank_text, reg_type, pinned) VALUES (:yank_text, :reg_type, :pinned)",
-            { yank_text = yank_text, reg_type = reg_type, pinned = is_pinned }
+            {
+                yank_text = M.escape(yank_text),
+                reg_type = reg_type,
+                pinned = is_pinned,
+            }
         )
     end)
 
@@ -100,7 +122,8 @@ function data:get_bank()
 
     local bank = self:get()
     for _, entry in ipairs(bank) do
-        table.insert(yanks, 1, entry.yank_text)
+        local text, _ = M.unescape(entry.yank_text)
+        table.insert(yanks, 1, text)
         table.insert(reg_types, 1, entry.reg_type)
         table.insert(pins, 1, entry.pinned)
     end
@@ -115,7 +138,7 @@ function data.remove_match(text, reg_type)
     db:with_open(function()
         return db:eval(
             "DELETE FROM bank WHERE yank_text = :yank_text and reg_type = :reg_type",
-            { yank_text = text, reg_type = reg_type }
+            { yank_text = M.escape(text), reg_type = reg_type }
         )
     end)
 end
@@ -130,7 +153,7 @@ function data.pin(text, reg_type)
         return (
             db:eval(
                 "UPDATE bank SET pinned = 1 WHERE yank_text = :yank_text and reg_type = :reg_type",
-                { yank_text = text, reg_type = reg_type }
+                { yank_text = M.escape(text), reg_type = reg_type }
             )
         )
     end)
@@ -146,7 +169,7 @@ function data.unpin(text, reg_type)
         -- - figure out how to return if updated or remove return
         return db:eval(
             "UPDATE bank SET pinned = 0 WHERE yank_text = :yank_text and reg_type = :reg_type",
-            { yank_text = text, reg_type = reg_type }
+            { yank_text = M.escape(text), reg_type = reg_type }
         )
     end)
 end
