@@ -120,6 +120,10 @@ return {
 }
 ```
 
+Note: The database can be cleared with the `:YankBankClearDB` command or by deleting the db file (found in the plugin install directory by default).
+
+If you run into any SQL related issues, please file an issue on GitHub. (As a temporary fix, you can also try clearing the database)
+
 ## Usage
 
 The popup menu can be opened with the command:`:YankBank`, an entry is pasted at the current cursor position by hitting enter, and the menu can be closed by hitting escape, ctrl-c, or q.
@@ -139,10 +143,10 @@ Some plugin internals are also accessible via the YankBank api.
 
 Examples:
 ```lua
--- get the 2nd entry in the bank
+-- get the ith entry in the bank
 ---@param i integer index to get
 -- output format: { yank_text = "entry", reg_type = "v" }
-local e = require("yankbank.api").get_entry(2)
+local e = require("yankbank.api").get_entry(i)
 
 -- add an entry to the bank
 ---@param yank_text string yank text to add to YANKS table
@@ -151,7 +155,16 @@ require("yankbank.api").add_entry("yank_text", "reg_type")
 
 -- remove an entry from the bank by index
 ---@param i integer index to remove
-require("yankbank.api").remove_entry(1)
+require("yankbank.api").remove_entry(i)
+
+--- pin entry to yankbank so that it won't be removed when its position exceeds the max number of entries
+---@param i integer index to pin
+require("yankbank.api").pin_entry(i)
+
+
+--- unpin bank entry
+---@param i integer index to unpin
+require("yankbank.api").unpin_entry(i)
 ```
 
 For more details about the API see [lua/yankbank/api.lua](lua/yankbank/api.lua)
