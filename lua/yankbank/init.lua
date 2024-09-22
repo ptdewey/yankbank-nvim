@@ -47,6 +47,9 @@ function M.setup(opts)
     -- merge opts with default options table
     YB_OPTS = vim.tbl_deep_extend("keep", opts or {}, default_opts)
 
+    -- set up menu keybinds from defafaults and YB_OPTS.keymaps
+    menu.setup()
+
     -- enable persistence based on opts (needs to be called before autocmd setup)
     YB_YANKS, YB_REG_TYPES, YB_PINS = persistence.setup()
 

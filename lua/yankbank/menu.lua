@@ -18,15 +18,19 @@ local default_registers = {
     yank_register = "+",
 }
 
--- merge default and options keymap tables
-local k = vim.tbl_deep_extend("force", default_keymaps, YB_OPTS.keymaps or {})
+-- local YB_OPTS.keymaps = {}
 
--- merge default and options register tables
-YB_OPTS.registers =
-    vim.tbl_deep_extend("force", default_registers, YB_OPTS.registers or {})
+function M.setup()
+    -- merge default and options keymap tables
+    YB_OPTS.keymaps =
+        vim.tbl_deep_extend("force", default_keymaps, YB_OPTS.keymaps or {})
+    -- merge default and options register tables
+    YB_OPTS.registers =
+        vim.tbl_deep_extend("force", default_registers, YB_OPTS.registers or {})
 
--- check table for number behavior option (prefix or jump, default to prefix)
-YB_OPTS.num_behavior = YB_OPTS.num_behavior or "prefix"
+    -- check table for number behavior option (prefix or jump, default to prefix)
+    YB_OPTS.num_behavior = YB_OPTS.num_behavior or "prefix"
+end
 
 --- Container class for YankBank buffer related variables
 ---@class YankBankBufData
@@ -118,12 +122,12 @@ function M.set_keymaps(b)
 
     -- popup buffer navigation binds
     if YB_OPTS.num_behavior == "prefix" then
-        vim.keymap.set("n", k.navigation_next, function()
+        vim.keymap.set("n", YB_OPTS.keymaps.navigation_next, function()
             local count = vim.v.count1 > 0 and vim.v.count1 or 1
             helpers.next_numbered_item(count)
             return ""
         end, { noremap = true, silent = true, buffer = b.bufnr })
-        vim.keymap.set("n", k.navigation_prev, function()
+        vim.keymap.set("n", YB_OPTS.keymaps.navigation_prev, function()
             local count = vim.v.count1 > 0 and vim.v.count1 or 1
             helpers.prev_numbered_item(count)
             return ""
@@ -131,13 +135,13 @@ function M.set_keymaps(b)
     else
         vim.keymap.set(
             "n",
-            k.navigation_next,
+            YB_OPTS.keymaps.navigation_next,
             helpers.next_numbered_item,
             map_opts
         )
         vim.keymap.set(
             "n",
-            k.navigation_prev,
+            YB_OPTS.keymaps.navigation_prev,
             helpers.prev_numbered_item,
             map_opts
         )
@@ -162,7 +166,7 @@ function M.set_keymaps(b)
     end
 
     -- bind paste behavior
-    vim.keymap.set("n", k.paste, function()
+    vim.keymap.set("n", YB_OPTS.keymaps.paste, function()
         local cursor = vim.api.nvim_win_get_cursor(b.win_id)[1]
         -- use the mapping to find the original yank
         local yankIndex = b.line_yank_map[cursor]
@@ -179,7 +183,7 @@ function M.set_keymaps(b)
         end
     end, map_opts)
     -- paste backwards
-    vim.keymap.set("n", k.paste_back, function()
+    vim.keymap.set("n", YB_OPTS.keymaps.paste_back, function()
         local cursor = vim.api.nvim_win_get_cursor(b.win_id)[1]
         -- use the mapping to find the original yank
         local yankIndex = b.line_yank_map[cursor]
@@ -197,7 +201,7 @@ function M.set_keymaps(b)
     end, map_opts)
 
     -- bind yank behavior
-    vim.keymap.set("n", k.yank, function()
+    vim.keymap.set("n", YB_OPTS.keymaps.yank, function()
         local cursor = vim.api.nvim_win_get_cursor(b.win_id)[1]
         local yankIndex = b.line_yank_map[cursor]
         if yankIndex then
@@ -208,7 +212,7 @@ function M.set_keymaps(b)
 
     -- close popup keybinds
     -- REFACTOR: check if close keybind is string, handle differently
-    for _, map in ipairs(k.close) do
+    for _, map in ipairs(YB_OPTS.keymaps.close) do
         vim.keymap.set("n", map, function()
             vim.api.nvim_win_close(b.win_id, true)
         end, map_opts)
