@@ -1,4 +1,4 @@
-*yankbank-nvim.txt*     For Neovim >= 0.7.0     Last change: 2024 September 27
+*yankbank-nvim.txt*      For Neovim >= 0.7.0      Last change: 2024 October 28
 
 ==============================================================================
 Table of Contents                            *yankbank-nvim-table-of-contents*
@@ -91,7 +91,8 @@ num_behavior | string defining jump behavior "prefix" or "jump" | `"prefix"` |
 | focus_gain_poll | boolean | `nil` | | registers | table container for
 register overrides | `{ }` | | registers.yank_register | default register to
 yank from popup to | `"+"` | | persist_type | string defining persistence type
-"sqlite" or nil | `nil` |
+"sqlite" or nil | `nil` | | db_path | string defining database file path for
+use with sqlite persistence | plugin install directory |
 
 
 EXAMPLE CONFIGURATION
@@ -162,6 +163,10 @@ deleting the db file (found in the plugin install directory by default).
 
 If you run into any SQL related issues, please file an issue on GitHub. (As a
 temporary fix, you can also try clearing the database)
+
+If you run into permissions issues when creating the db file (i.e. when
+installing using Nix), use the `db_path` option to change the default file
+path. (`vim.fn.stdpath("data")` should work)
 
 
 USAGE                                           *yankbank-nvim-yankbank-usage*
