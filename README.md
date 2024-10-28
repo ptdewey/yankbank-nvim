@@ -66,6 +66,7 @@ The setup function also supports taking in a table of options:
 | registers | table container for register overrides | `{ }` |
 | registers.yank_register | default register to yank from popup to | `"+"` |
 | persist_type | string defining persistence type "sqlite" or nil | `nil` |
+| db_path | string defining database file path for use with sqlite persistence | plugin install directory |
 
 
 #### Example Configuration
@@ -123,6 +124,9 @@ return {
 Note: The database can be cleared with the `:YankBankClearDB` command or by deleting the db file (found in the plugin install directory by default).
 
 If you run into any SQL related issues, please file an issue on GitHub. (As a temporary fix, you can also try clearing the database)
+
+
+If you run into permissions issues when creating the db file (i.e. when installing using Nix), use the `db_path` option to change the default file path. (`vim.fn.stdpath("data")` should work)
 
 ## Usage
 

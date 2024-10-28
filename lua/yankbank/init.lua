@@ -20,8 +20,9 @@ local default_opts = {
     registers = {
         yank_register = "+",
     },
-    persist_type = nil,
     keymaps = {},
+    persist_type = nil,
+    db_path = nil,
 }
 
 --- wrapper function for main plugin functionality

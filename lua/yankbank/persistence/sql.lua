@@ -2,8 +2,10 @@ local M = {}
 
 local sqlite = require("sqlite")
 
--- local dbdir = vim.fn.stdpath("data") .. "/databases"
-local dbdir = debug.getinfo(1).source:sub(2):match("(.*/).*/.*/.*/") or "./"
+local dbdir = YB_OPTS.db_path
+    or debug.getinfo(1).source:sub(2):match("(.*/).*/.*/.*/")
+    or "./"
+-- or vim.fn.stdpath("data")
 local max_entries = 10
 
 ---@class YankBankDB:sqlite_db
@@ -22,16 +24,12 @@ local db = sqlite({
 ---@class sqlite_tbl
 local data = db.bank
 
--- NOTE: escape and unescape query text
--- TODO: adjust to only escape text that matches function syntax
----
 ---@param content string
 ---@return string
 function M.escape(content)
     return string.format("__ESCAPED__'%s'", content)
 end
 
----
 ---@param content string
 ---@return string
 ---@return integer?
@@ -146,10 +144,9 @@ end
 --- pin entry in yankbank to prevent removal
 ---@param text string text to match and pin
 ---@param reg_type string reg_type corresponding to text
----@return boolean
+---@return boolean?
 function data.pin(text, reg_type)
     return db:with_open(function()
-        -- TODO: always returns true or nothing
         return (
             db:eval(
                 "UPDATE bank SET pinned = 1 WHERE yank_text = :yank_text and reg_type = :reg_type",
@@ -162,11 +159,9 @@ end
 --- unpin entry in yankbank to prevent removal
 ---@param text string
 ---@param reg_type string reg_type corresponding to text
----@return boolean
+---@return boolean?
 function data.unpin(text, reg_type)
     return db:with_open(function()
-        -- TODO: always returns true or nothing
-        -- - figure out how to return if updated or remove return
         return db:eval(
             "UPDATE bank SET pinned = 0 WHERE yank_text = :yank_text and reg_type = :reg_type",
             { yank_text = M.escape(text), reg_type = reg_type }
