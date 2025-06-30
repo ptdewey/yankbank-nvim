@@ -10,6 +10,7 @@ YB_OPTS = {}
 local menu = require("yankbank.menu")
 local clipboard = require("yankbank.clipboard")
 local persistence = require("yankbank.persistence")
+local helpers = require("yankbank.helpers")
 
 -- default plugin options
 local default_opts = {
@@ -23,6 +24,7 @@ local default_opts = {
     keymaps = {},
     persist_type = nil,
     db_path = nil,
+    bind_indices = nil,
 }
 
 --- wrapper function for main plugin functionality
@@ -61,6 +63,25 @@ function M.setup(opts)
     vim.api.nvim_create_user_command("YankBank", function()
         show_yank_bank()
     end, { desc = "Show Recent Yanks" })
+
+    -- Bind 1-n if `bind_indices` is set to a string
+    print(YB_OPTS.bind_indices or "no index keybind map set")
+    if YB_OPTS.bind_indices then
+        for i = 1, YB_OPTS.max_entries do
+            vim.keymap.set(
+                "n",
+                YB_OPTS.bind_indices .. i,
+                function()
+                    helpers.smart_paste(YB_YANKS[i], YB_REG_TYPES[i], true)
+                end,
+                {
+                    noremap = true,
+                    silent = true,
+                    desc = "Paste YankBank entry " .. i,
+                }
+            )
+        end
+    end
 end
 
 return M
