@@ -65,21 +65,15 @@ function M.setup(opts)
     end, { desc = "Show Recent Yanks" })
 
     -- Bind 1-n if `bind_indices` is set to a string
-    print(YB_OPTS.bind_indices or "no index keybind map set")
     if YB_OPTS.bind_indices then
         for i = 1, YB_OPTS.max_entries do
-            vim.keymap.set(
-                "n",
-                YB_OPTS.bind_indices .. i,
-                function()
-                    helpers.smart_paste(YB_YANKS[i], YB_REG_TYPES[i], true)
-                end,
-                {
-                    noremap = true,
-                    silent = true,
-                    desc = "Paste YankBank entry " .. i,
-                }
-            )
+            vim.keymap.set("n", YB_OPTS.bind_indices .. i, function()
+                helpers.smart_paste(YB_YANKS[i], YB_REG_TYPES[i], true)
+            end, {
+                noremap = true,
+                silent = true,
+                desc = "Paste YankBank entry " .. i,
+            })
         end
     end
 end
