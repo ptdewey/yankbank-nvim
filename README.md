@@ -62,11 +62,12 @@ The setup function also supports taking in a table of options:
 | keymaps.yank | string | `"yy"` |
 | keymaps.close | table of strings | `{ "<Esc>", "<C-c>", "q" }` |
 | num_behavior | string defining jump behavior "prefix" or "jump" | `"prefix"` |
-| focus_gain_poll | boolean | `nil` |
+| focus_gain_poll | boolean | `false` |
 | registers | table container for register overrides | `{ }` |
 | registers.yank_register | default register to yank from popup to | `"+"` |
 | persist_type | string defining persistence type "sqlite" or nil | `nil` |
 | db_path | string defining database file path for use with sqlite persistence | plugin install directory |
+| bind_indices | optional string to be used for keybind prefix for pasting by index number (i.e. "<leader>p") | `nil` |
 
 
 #### Example Configuration
@@ -88,6 +89,7 @@ The setup function also supports taking in a table of options:
             registers = {
                 yank_register = "+",
             },
+            bind_indices = "<leader>p"
         })
     end,
 }
