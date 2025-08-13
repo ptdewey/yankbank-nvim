@@ -1,9 +1,5 @@
 local M = {}
 
--- import persistence module
-local persistence = require("yankbank.persistence")
-local utils = require("yankbank.utils")
-
 --- Function to add yanked text to table
 ---@param text string
 ---@param reg_type string
@@ -39,7 +35,7 @@ function M.add_yank(text, reg_type, pin)
 
     -- trim table size if necessary
     if #YB_YANKS > YB_OPTS.max_entries then
-        local i = utils.last_zero_entry(YB_PINS)
+        local i = require("yankbank.utils").last_zero_entry(YB_PINS)
 
         if not i or i == 1 then
             -- WARN: undefined behavior
@@ -55,7 +51,7 @@ function M.add_yank(text, reg_type, pin)
     end
 
     -- add entry to persistent store
-    persistence.add_entry(text, reg_type, pin)
+    require("yankbank.persistence").add_entry(text, reg_type, pin)
 end
 
 --- autocommand to listen for yank events
@@ -65,7 +61,7 @@ function M.setup_yank_autocmd()
             -- get register information
             local rn = vim.v.event.regname
 
-            -- check changes wwere made to default register
+            -- check changes were made to default register
             if rn == "" or rn == "+" then
                 local reg_type = vim.fn.getregtype(rn)
                 local yank_text = vim.fn.getreg(rn)
