@@ -82,7 +82,6 @@ function M.setup(opts)
         for i = 1, merged_opts.max_entries do
             vim.keymap.set("n", merged_opts.bind_indices .. i, function()
                 M.ensure_initialized()
-                local state = require("yankbank.state")
                 require("yankbank.helpers").smart_paste(
                     state.get_yanks()[i],
                     state.get_reg_types()[i],

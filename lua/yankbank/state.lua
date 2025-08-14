@@ -4,7 +4,7 @@ local state = {
     yanks = {},
     reg_types = {},
     pins = {},
-    opts = {}
+    opts = {},
 }
 
 function M.get_yanks()

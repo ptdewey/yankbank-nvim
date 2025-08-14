@@ -44,7 +44,7 @@ function M.remove_entry(i)
     local reg_type = table.remove(reg_types, i)
     state.set_yanks(yanks)
     state.set_reg_types(reg_types)
-    
+
     local opts = state.get_opts()
     if opts.persist_type == "sqlite" then
         require("yankbank.persistence.sql")
