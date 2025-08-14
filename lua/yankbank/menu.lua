@@ -1,7 +1,6 @@
 local M = {}
 
-local data = require("yankbank.data")
-local helpers = require("yankbank.helpers")
+local state = require("yankbank.state")
 
 -- default plugin keymaps
 local default_keymaps = {
@@ -18,18 +17,85 @@ local default_registers = {
     yank_register = "+",
 }
 
--- local YB_OPTS.keymaps = {}
-
 function M.setup()
+    local opts = state.get_opts()
     -- merge default and options keymap tables
-    YB_OPTS.keymaps =
-        vim.tbl_deep_extend("force", default_keymaps, YB_OPTS.keymaps or {})
+    opts.keymaps =
+        vim.tbl_deep_extend("force", default_keymaps, opts.keymaps or {})
     -- merge default and options register tables
-    YB_OPTS.registers =
-        vim.tbl_deep_extend("force", default_registers, YB_OPTS.registers or {})
+    opts.registers =
+        vim.tbl_deep_extend("force", default_registers, opts.registers or {})
 
     -- check table for number behavior option (prefix or jump, default to prefix)
-    YB_OPTS.num_behavior = YB_OPTS.num_behavior or "prefix"
+    opts.num_behavior = opts.num_behavior or "prefix"
+
+    state.set_opts(opts)
+end
+
+--- reformat yanks table for popup
+---@return table, table
+local function get_display_lines()
+    local display_lines = {}
+    local line_yank_map = {}
+    local yank_num = 0
+
+    local yanks = state.get_yanks()
+    local opts = state.get_opts()
+
+    -- calculate the maximum width needed for the yank numbers
+    local max_digits = #tostring(#yanks)
+
+    -- assumes yanks is table of strings
+    for i, yank in ipairs(yanks) do
+        yank_num = yank_num + 1
+
+        local yank_lines = yank
+        if type(yank) == "string" then
+            -- remove trailing newlines
+            yank = yank:gsub("\n$", "")
+            yank_lines = vim.split(yank, "\n", { plain = true })
+        end
+
+        local leading_space, leading_space_length
+
+        -- determine the number of leading whitespaces on the first line
+        if #yank_lines > 0 then
+            leading_space = yank_lines[1]:match("^(%s*)")
+            leading_space_length = #leading_space
+        end
+
+        for j, line in ipairs(yank_lines) do
+            if j == 1 then
+                -- Format the line number with uniform spacing
+                local lineNumber =
+                    string.format("%" .. max_digits .. "d: ", yank_num)
+                line = line:sub(leading_space_length + 1)
+                table.insert(display_lines, lineNumber .. line)
+            else
+                -- Remove the same amount of leading whitespace as on the first line
+                line = line:sub(leading_space_length + 1)
+                -- Use spaces equal to the line number's reserved space to align subsequent lines
+                table.insert(
+                    display_lines,
+                    string.rep(" ", max_digits + 2) .. line
+                )
+            end
+            table.insert(line_yank_map, i)
+        end
+
+        if i < #yanks then
+            -- Add a visual separator between yanks, aligned with the yank content
+            if opts.sep ~= "" then
+                table.insert(
+                    display_lines,
+                    string.rep(" ", max_digits + 2) .. opts.sep
+                )
+            end
+            table.insert(line_yank_map, false)
+        end
+    end
+
+    return display_lines, line_yank_map
 end
 
 --- Container class for YankBank buffer related variables
@@ -43,7 +109,9 @@ end
 ---@return YankBankBufData?
 function M.create_and_fill_buffer()
     -- stop if yanks or register types table is empty
-    if #YB_YANKS == 0 or #YB_REG_TYPES == 0 then
+    local yanks = state.get_yanks()
+    local reg_types = state.get_reg_types()
+    if #yanks == 0 or #reg_types == 0 then
         print("No yanks to show.")
         return nil
     end
@@ -55,7 +123,7 @@ function M.create_and_fill_buffer()
     local current_filetype = vim.bo.filetype
     vim.api.nvim_set_option_value("filetype", current_filetype, { buf = bufnr })
 
-    local display_lines, line_yank_map = data.get_display_lines()
+    local display_lines, line_yank_map = get_display_lines()
 
     -- replace current buffer contents with updated table
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, display_lines)
@@ -119,15 +187,18 @@ end
 function M.set_keymaps(b)
     -- key mappings for selection and closing the popup
     local map_opts = { noremap = true, silent = true, buffer = b.bufnr }
+    local opts = state.get_opts()
+
+    local helpers = require("yankbank.helpers")
 
     -- popup buffer navigation binds
-    if YB_OPTS.num_behavior == "prefix" then
-        vim.keymap.set("n", YB_OPTS.keymaps.navigation_next, function()
+    if opts.num_behavior == "prefix" then
+        vim.keymap.set("n", opts.keymaps.navigation_next, function()
             local count = vim.v.count1 > 0 and vim.v.count1 or 1
             helpers.next_numbered_item(count)
             return ""
         end, { noremap = true, silent = true, buffer = b.bufnr })
-        vim.keymap.set("n", YB_OPTS.keymaps.navigation_prev, function()
+        vim.keymap.set("n", opts.keymaps.navigation_prev, function()
             local count = vim.v.count1 > 0 and vim.v.count1 or 1
             helpers.prev_numbered_item(count)
             return ""
@@ -135,21 +206,21 @@ function M.set_keymaps(b)
     else
         vim.keymap.set(
             "n",
-            YB_OPTS.keymaps.navigation_next,
+            opts.keymaps.navigation_next,
             helpers.next_numbered_item,
             map_opts
         )
         vim.keymap.set(
             "n",
-            YB_OPTS.keymaps.navigation_prev,
+            opts.keymaps.navigation_prev,
             helpers.prev_numbered_item,
             map_opts
         )
     end
 
     -- map number keys to jump to entry if num_behavior is 'jump'
-    if YB_OPTS.num_behavior == "jump" then
-        for i = 1, YB_OPTS.max_entries do
+    if opts.num_behavior == "jump" then
+        for i = 1, opts.max_entries do
             vim.keymap.set("n", tostring(i), function()
                 local target_line = nil
                 for line_num, yank_num in pairs(b.line_yank_map) do
@@ -166,7 +237,7 @@ function M.set_keymaps(b)
     end
 
     -- bind paste behavior
-    vim.keymap.set("n", YB_OPTS.keymaps.paste, function()
+    vim.keymap.set("n", opts.keymaps.paste, function()
         local cursor = vim.api.nvim_win_get_cursor(b.win_id)[1]
         -- use the mapping to find the original yank
         local yankIndex = b.line_yank_map[cursor]
@@ -174,8 +245,8 @@ function M.set_keymaps(b)
             -- close window upon selection
             vim.api.nvim_win_close(b.win_id, true)
             helpers.smart_paste(
-                YB_YANKS[yankIndex],
-                YB_REG_TYPES[yankIndex],
+                state.get_yanks()[yankIndex],
+                state.get_reg_types()[yankIndex],
                 true
             )
         else
@@ -183,7 +254,7 @@ function M.set_keymaps(b)
         end
     end, map_opts)
     -- paste backwards
-    vim.keymap.set("n", YB_OPTS.keymaps.paste_back, function()
+    vim.keymap.set("n", opts.keymaps.paste_back, function()
         local cursor = vim.api.nvim_win_get_cursor(b.win_id)[1]
         -- use the mapping to find the original yank
         local yankIndex = b.line_yank_map[cursor]
@@ -191,8 +262,8 @@ function M.set_keymaps(b)
             -- close window upon selection
             vim.api.nvim_win_close(b.win_id, true)
             helpers.smart_paste(
-                YB_YANKS[yankIndex],
-                YB_REG_TYPES[yankIndex],
+                state.get_yanks()[yankIndex],
+                state.get_reg_types()[yankIndex],
                 false
             )
         else
@@ -201,18 +272,21 @@ function M.set_keymaps(b)
     end, map_opts)
 
     -- bind yank behavior
-    vim.keymap.set("n", YB_OPTS.keymaps.yank, function()
+    vim.keymap.set("n", opts.keymaps.yank, function()
         local cursor = vim.api.nvim_win_get_cursor(b.win_id)[1]
         local yankIndex = b.line_yank_map[cursor]
         if yankIndex then
-            vim.fn.setreg(YB_OPTS.registers.yank_register, YB_YANKS[yankIndex])
+            vim.fn.setreg(
+                opts.registers.yank_register,
+                state.get_yanks()[yankIndex]
+            )
             vim.api.nvim_win_close(b.win_id, true)
         end
     end, map_opts)
 
     -- close popup keybinds
     -- REFACTOR: check if close keybind is string, handle differently
-    for _, map in ipairs(YB_OPTS.keymaps.close) do
+    for _, map in ipairs(opts.keymaps.close) do
         vim.keymap.set("n", map, function()
             vim.api.nvim_win_close(b.win_id, true)
         end, map_opts)

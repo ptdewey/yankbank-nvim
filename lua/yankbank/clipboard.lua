@@ -1,5 +1,20 @@
 local M = {}
 
+local state = require("yankbank.state")
+
+--- get the last zero entry in a table
+---
+---@param t table
+---@return integer?
+local function last_zero_entry(t)
+    for i = #t, 1, -1 do
+        if t[i] == 0 then
+            return i
+        end
+    end
+    return nil
+end
+
 --- Function to add yanked text to table
 ---@param text string
 ---@param reg_type string
@@ -11,14 +26,17 @@ function M.add_yank(text, reg_type, pin)
     end
 
     local is_pinned = 0
+    local yanks = state.get_yanks()
+    local reg_types = state.get_reg_types()
+    local pins = state.get_pins()
 
     -- check for duplicate values already inserted
-    for i, entry in ipairs(YB_YANKS) do
+    for i, entry in ipairs(yanks) do
         if entry == text then
             -- remove matched entry so it can be inserted at 1st position
-            table.remove(YB_YANKS, i)
-            table.remove(YB_REG_TYPES, i)
-            is_pinned = table.remove(YB_PINS, i)
+            table.remove(yanks, i)
+            table.remove(reg_types, i)
+            is_pinned = table.remove(pins, i)
             break
         end
     end
@@ -29,13 +47,14 @@ function M.add_yank(text, reg_type, pin)
         or is_pinned
 
     -- add entry to bank
-    table.insert(YB_YANKS, 1, text)
-    table.insert(YB_REG_TYPES, 1, reg_type)
-    table.insert(YB_PINS, 1, is_pinned)
+    table.insert(yanks, 1, text)
+    table.insert(reg_types, 1, reg_type)
+    table.insert(pins, 1, is_pinned)
 
     -- trim table size if necessary
-    if #YB_YANKS > YB_OPTS.max_entries then
-        local i = require("yankbank.utils").last_zero_entry(YB_PINS)
+    local opts = state.get_opts()
+    if #yanks > opts.max_entries then
+        local i = last_zero_entry(pins)
 
         if not i or i == 1 then
             -- WARN: undefined behavior
@@ -44,11 +63,16 @@ function M.add_yank(text, reg_type, pin)
             )
         else
             -- remove last non-pinned entry
-            table.remove(YB_YANKS, i)
-            table.remove(YB_REG_TYPES, i)
-            table.remove(YB_PINS, i)
+            table.remove(yanks, i)
+            table.remove(reg_types, i)
+            table.remove(pins, i)
         end
     end
+
+    -- update state
+    state.set_yanks(yanks)
+    state.set_reg_types(reg_types)
+    state.set_pins(pins)
 
     -- add entry to persistent store
     require("yankbank.persistence").add_entry(text, reg_type, pin)
@@ -74,13 +98,16 @@ function M.setup_yank_autocmd()
                     return
                 end
 
+                -- lazy load initialization when first yank happens
+                require("yankbank").ensure_initialized()
                 M.add_yank(yank_text, reg_type)
             end
         end,
     })
 
     -- poll registers when vim is focused (check for new clipboard activity)
-    if YB_OPTS.focus_gain_poll == true then
+    local opts = state.get_opts()
+    if opts.focus_gain_poll == true then
         vim.api.nvim_create_autocmd("FocusGained", {
             callback = function()
                 -- get register information
@@ -95,6 +122,8 @@ function M.setup_yank_autocmd()
                     return
                 end
 
+                -- lazy load initialization when first focus gain happens
+                require("yankbank").ensure_initialized()
                 M.add_yank(yank_text, reg_type)
             end,
         })

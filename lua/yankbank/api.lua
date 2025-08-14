@@ -1,12 +1,14 @@
 local M = {}
 
+local state = require("yankbank.state")
+
 --- get a table containg a single yankbank entry by index
 ---@param i integer
 ---@return table
 function M.get_entry(i)
     return {
-        yank_text = YB_YANKS[i],
-        reg_type = YB_REG_TYPES[i],
+        yank_text = state.get_yanks()[i],
+        reg_type = state.get_reg_types()[i],
     }
 end
 
@@ -14,10 +16,12 @@ end
 ---@return table
 function M.get_all()
     local out = {}
-    for i, v in ipairs(YB_YANKS) do
+    local yanks = state.get_yanks()
+    local reg_types = state.get_reg_types()
+    for i, v in ipairs(yanks) do
         table.insert(out, {
             yank_text = v,
-            reg_type = YB_REG_TYPES[i],
+            reg_type = reg_types[i],
         })
     end
     return out
@@ -34,9 +38,15 @@ end
 --- remove entry from yankbank by index
 ---@param i integer index to remove
 function M.remove_entry(i)
-    local yank_text = table.remove(YB_YANKS, i)
-    local reg_type = table.remove(YB_REG_TYPES, i)
-    if YB_OPTS.persist_type == "sqlite" then
+    local yanks = state.get_yanks()
+    local reg_types = state.get_reg_types()
+    local yank_text = table.remove(yanks, i)
+    local reg_type = table.remove(reg_types, i)
+    state.set_yanks(yanks)
+    state.set_reg_types(reg_types)
+    
+    local opts = state.get_opts()
+    if opts.persist_type == "sqlite" then
         require("yankbank.persistence.sql")
             .data()
             .remove_match(yank_text, reg_type)
@@ -47,17 +57,20 @@ end
 ---
 ---@param i integer index to pin
 function M.pin_entry(i)
-    if i > #YB_PINS then
+    local pins = state.get_pins()
+    if i > #pins then
         return
     end
 
     -- TODO: show pins differently in popup (could use different hl_groups for pinned entries?)
-    YB_PINS[i] = 1
+    pins[i] = 1
+    state.set_pins(pins)
 
-    if YB_OPTS.persist_type == "sqlite" then
+    local opts = state.get_opts()
+    if opts.persist_type == "sqlite" then
         return require("yankbank.persistence.sql")
             .data()
-            .pin(YB_YANKS[i], YB_REG_TYPES[i])
+            .pin(state.get_yanks()[i], state.get_reg_types()[i])
     end
 end
 
@@ -65,17 +78,20 @@ end
 ---
 ---@param i integer index to unpin
 function M.unpin_entry(i)
-    if i > #YB_PINS then
+    local pins = state.get_pins()
+    if i > #pins then
         return
     end
 
     -- TODO: update popup pin highlight
-    YB_PINS[i] = 0
+    pins[i] = 0
+    state.set_pins(pins)
 
-    if YB_OPTS.persist_type == "sqlite" then
+    local opts = state.get_opts()
+    if opts.persist_type == "sqlite" then
         return require("yankbank.persistence.sql")
             .data()
-            .unpin(YB_YANKS[i], YB_REG_TYPES[i])
+            .unpin(state.get_yanks()[i], state.get_reg_types()[i])
     end
 end
 

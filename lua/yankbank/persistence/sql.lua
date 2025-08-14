@@ -1,18 +1,22 @@
 local M = {}
 
 local sqlite = require("sqlite")
+local state = require("yankbank.state")
 
-local dbdir = YB_OPTS.db_path
-    or debug.getinfo(1).source:sub(2):match("(.*/).*/.*/.*/")
-    or "./"
--- or vim.fn.stdpath("data")
+local function get_db_path()
+    local opts = state.get_opts()
+    return opts.db_path
+        or debug.getinfo(1).source:sub(2):match("(.*/).*/.*/.*/")
+        or "./"
+end
+
 local max_entries = 10
 
 ---@class YankBankDB:sqlite_db
 ---@field bank sqlite_tbl
 ---@field bank sqlite_tbl
 local db = sqlite({
-    uri = dbdir .. "/yankbank.db",
+    uri = get_db_path() .. "/yankbank.db",
     bank = {
         -- yanked text should be unique and be primary key
         yank_text = { "text", unique = true, primary = true, required = true },
@@ -178,15 +182,16 @@ end
 --- set up database persistence
 ---@return sqlite_tbl data
 function M.setup()
-    max_entries = YB_OPTS.max_entries
+    local opts = state.get_opts()
+    max_entries = opts.max_entries
 
     vim.api.nvim_create_user_command("YankBankClearDB", function()
         data:drop()
-        YB_YANKS = {}
-        YB_REG_TYPES = {}
+        state.set_yanks({})
+        state.set_reg_types({})
     end, {})
 
-    if YB_OPTS.debug == true then
+    if opts.debug == true then
         vim.api.nvim_create_user_command("YankBankViewDB", function()
             print(vim.inspect(data:get()))
         end, {})
