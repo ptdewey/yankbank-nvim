@@ -27,6 +27,7 @@ Using lazy.nvim
 {
     "ptdewey/yankbank-nvim",
     dependencies = "kkharji/sqlite.lua",
+    cmd = { "YankBank" },
     config = function()
         require('yankbank').setup({
             persist_type = "sqlite",
@@ -41,11 +42,57 @@ Using lazy.nvim
 ```lua
 {
     "ptdewey/yankbank-nvim",
+    cmd = { "YankBank" },
     config = function()
         require('yankbank').setup()
     end,
 }
 ```
+
+#### Lazy loading
+
+Per [best practices](https://github.com/nvim-neorocks/nvim-best-practices?tab=readme-ov-file#sleeping_bed-lazy-loading), YankBank's initialization footprint is very minimal, and functionalities are only loaded when they are needed. As such, I set `lazy=false` in my config, and get a startup time of <1ms.
+
+```lua
+-- plugins/yankbank.lua
+return {
+    {
+        "ptdewey/yankbank-nvim",
+        lazy = false,
+        config = function()
+            -- ...
+        end,
+    },
+    {
+        "kkharji/sqlite.lua",
+        lazy = true,
+    },
+}
+```
+
+If you don't want to load YankBank on startup, I previously loaded it on keypresses that yank text (`y`, `Y`, `d`, `D`, `x`), the `FocusGained` event, and the `YankBank` command.
+```lua
+{
+    "ptdewey/yankbank-nvim",
+    dependencies = "kkharji/sqlite.lua",
+    keys = {
+        { "y" },
+        { "Y", "y$" }, -- redefine Y behavior to y$ to avoid breaking lazy
+        { "D" },
+        { "d" },
+        { "x" },
+        { "<leader>p", desc = "Open YankBank" },
+    },
+    cmd = { "YankBank" },
+    event = { "FocusGained" },
+    config = function()
+        require("yankbank").setup({
+            -- ...
+        })
+    end
+}
+```
+
 
 ### Setup Options
 
