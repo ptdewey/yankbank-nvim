@@ -1,3 +1,35 @@
+
+<div align="right">
+  <details>
+    <summary >🌐 Language</summary>
+    <div>
+      <div align="center">
+        <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=en">English</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=zh-CN">简体中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=zh-TW">繁體中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=ja">日本語</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=ko">한국어</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=hi">हिन्दी</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=th">ไทย</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=fr">Français</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=de">Deutsch</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=es">Español</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=it">Italiano</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=ru">Русский</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=pt">Português</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=nl">Nederlands</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=pl">Polski</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=ar">العربية</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=fa">فارسی</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=tr">Türkçe</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=vi">Tiếng Việt</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=id">Bahasa Indonesia</a>
+        | <a href="https://openaitx.github.io/view.html?user=ptdewey&project=yankbank-nvim&lang=as">অসমীয়া</
+      </div>
+    </div>
+  </details>
+</div>
+
 # YankBank
 
 A Neovim plugin for keeping track of more recent yanks and deletions and exposing them in a quick access menu.
