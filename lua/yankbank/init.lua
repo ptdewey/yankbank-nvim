@@ -17,6 +17,15 @@ function M.ensure_initialized()
     initialized = true
 end
 
+function M.get_yanks()
+    M.ensure_initialized()
+    local state = require("yankbank.state")
+    local persistence = require("yankbank.persistence")
+    local yanks = persistence.get_yanks() or state.get_yanks()
+    state.set_yanks(yanks)
+    return yanks
+end
+
 --- wrapper function for main plugin functionality
 local function show_yank_bank()
     M.ensure_initialized()
@@ -60,6 +69,7 @@ function M.setup(opts)
         persist_type = nil,
         db_path = nil,
         bind_indices = nil,
+        pickers = {},
     }
 
     -- merge opts with default options table
@@ -93,6 +103,9 @@ function M.setup(opts)
                 desc = "Paste YankBank entry " .. i,
             })
         end
+    end
+    if merged_opts.pickers.snacks then
+        require("yankbank.pickers.snacks").setup()
     end
 end
 
