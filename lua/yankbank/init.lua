@@ -13,7 +13,6 @@ function M.ensure_initialized()
     -- enable persistence based on opts (needs to be called before autocmd setup)
     local yanks, reg_types, pins = persistence.setup()
     state.init(yanks, reg_types, pins, state.get_opts())
-
     initialized = true
 end
 
@@ -60,6 +59,7 @@ function M.setup(opts)
         persist_type = nil,
         db_path = nil,
         bind_indices = nil,
+        pickers = {},
     }
 
     -- merge opts with default options table
@@ -93,6 +93,10 @@ function M.setup(opts)
                 desc = "Paste YankBank entry " .. i,
             })
         end
+    end
+
+    if merged_opts.pickers.snacks then
+        require("yankbank.pickers.snacks").setup_commands()
     end
 end
 
