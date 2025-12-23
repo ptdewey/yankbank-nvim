@@ -13,17 +13,7 @@ function M.ensure_initialized()
     -- enable persistence based on opts (needs to be called before autocmd setup)
     local yanks, reg_types, pins = persistence.setup()
     state.init(yanks, reg_types, pins, state.get_opts())
-
     initialized = true
-end
-
-function M.get_yanks()
-    M.ensure_initialized()
-    local state = require("yankbank.state")
-    local persistence = require("yankbank.persistence")
-    local yanks = persistence.get_yanks() or state.get_yanks()
-    state.set_yanks(yanks)
-    return yanks
 end
 
 --- wrapper function for main plugin functionality
@@ -104,9 +94,11 @@ function M.setup(opts)
             })
         end
     end
+
     if merged_opts.pickers.snacks then
         require("yankbank.pickers.snacks").setup()
     end
+
 end
 
 return M
