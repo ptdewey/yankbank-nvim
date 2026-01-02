@@ -115,6 +115,8 @@ The setup function also supports taking in a table of options:
 | persist_type | string defining persistence type "sqlite" or nil | `nil` |
 | db_path | string defining database file path for use with sqlite persistence | plugin install directory |
 | bind_indices | optional string to be used for keybind prefix for pasting by index number (i.e. "<leader>p") | `nil` |
+| pickers | table containing all pickers. | `{}` |
+| pickers.snacks | boolean | `false` |
 
 
 #### Example Configuration
@@ -122,6 +124,9 @@ The setup function also supports taking in a table of options:
 ```lua
 {
     "ptdewey/yankbank-nvim",
+    dependencies = {
+        "folke/snacks.nvim", -- only needed if using snacks picker
+    },
     config = function()
         require('yankbank').setup({
             max_entries = 9,
@@ -137,6 +142,9 @@ The setup function also supports taking in a table of options:
                 yank_register = "+",
             },
             bind_indices = "<leader>p"
+            pickers = {
+                snacks = true,
+            },
         })
     end,
 }
@@ -181,6 +189,10 @@ If you run into permissions issues when creating the db file (i.e. when installi
 
 The popup menu can be opened with the command:`:YankBank`, an entry is pasted at the current cursor position by hitting enter, and the menu can be closed by hitting escape, ctrl-c, or q.
 An entry from the menu can also be yanked into the unnamedplus register by hitting yy.
+
+### Snacks Picker
+If `pickers.snacks` is set to true in the setup options, the snacks picker can be used to open the yankbank menu.
+This can be triggered by running the command `:YankBankSnacks` or using `Snacks.picker.yankbank()` as you would any other snacks picker.
 
 I would personally also recommend setting a keybind to open the menu.
 ```lua
