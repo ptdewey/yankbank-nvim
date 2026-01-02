@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/ptdewey/yankbank-nvim/compare/v1.1.1...v1.1.2) (2026-01-02)
+
+
+### Bug Fixes
+
+* call `ensure_initialized` in yankbank api functions ([#27](https://github.com/ptdewey/yankbank-nvim/issues/27)) ([8c912ae](https://github.com/ptdewey/yankbank-nvim/commit/8c912aee5e701eafecc33db2820c144089f2dbf1))
+
 ## [1.1.1](https://github.com/ptdewey/yankbank-nvim/compare/v1.1.0...v1.1.1) (2025-08-15)
 
 
