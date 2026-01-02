@@ -6,6 +6,7 @@ local state = require("yankbank.state")
 ---@param i integer
 ---@return table
 function M.get_entry(i)
+    require("yankbank").ensure_initialized()
     return {
         yank_text = state.get_yanks()[i],
         reg_type = state.get_reg_types()[i],
@@ -15,6 +16,7 @@ end
 --- get a table containing all yankbank entries
 ---@return table
 function M.get_all()
+    require("yankbank").ensure_initialized()
     local out = {}
     local yanks = state.get_yanks()
     local reg_types = state.get_reg_types()
@@ -32,12 +34,14 @@ end
 ---@param reg_type string register type "v", "V", or "^V" (visual, v-line, v-block respectively)
 ---@param pin integer|boolean?
 function M.add_entry(yank_text, reg_type, pin)
+    require("yankbank").ensure_initialized()
     require("yankbank.clipboard").add_yank(yank_text, reg_type, pin)
 end
 
 --- remove entry from yankbank by index
 ---@param i integer index to remove
 function M.remove_entry(i)
+    require("yankbank").ensure_initialized()
     local yanks = state.get_yanks()
     local reg_types = state.get_reg_types()
     local yank_text = table.remove(yanks, i)
@@ -57,6 +61,7 @@ end
 ---
 ---@param i integer index to pin
 function M.pin_entry(i)
+    require("yankbank").ensure_initialized()
     local pins = state.get_pins()
     if i > #pins then
         return
@@ -78,6 +83,7 @@ end
 ---
 ---@param i integer index to unpin
 function M.unpin_entry(i)
+    require("yankbank").ensure_initialized()
     local pins = state.get_pins()
     if i > #pins then
         return
