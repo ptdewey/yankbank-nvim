@@ -1,4 +1,4 @@
-*yankbank-nvim.txt*       For Neovim >= 0.7.0      Last change: 2025 August 15
+*yankbank-nvim.txt*      For Neovim >= 0.7.0      Last change: 2026 January 02
 
 ==============================================================================
 Table of Contents                            *yankbank-nvim-table-of-contents*
@@ -199,7 +199,7 @@ For the best experience with YankBank, enabling persistence is highly
 recommended. If persistence is enabled, sqlite.lua will be used to create a
 persistent store for recent yanks in the plugin root directory. To utilize
 sqlite persistence, `"kkharji/sqlite.lua"` must be added as a dependency in
-your config, and `persist_type` must be set to `"sqlite"`
+your config, and `persist_type` must be set to `"sqlite"`:
 
 >lua
     -- lazy
@@ -215,7 +215,7 @@ your config, and `persist_type` must be set to `"sqlite"`
     }
 <
 
-Note:The database can be cleared with the `:YankBankClearDB` command or by
+Note: The database can be cleared with the `:YankBankClearDB` command or by
 deleting the db file (found in the plugin install directory by default).
 
 If you run into any SQL related issues, please file an issue on GitHub. (As a
