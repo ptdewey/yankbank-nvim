@@ -7,7 +7,7 @@ local snacks_source = {
     finder = function()
         local yanks = require("yankbank.api").get_all()
         local items = {}
-        for i = 1, #yanks, 1 do
+        for i = 1, #yanks do
             local yank = yanks[i]
             local yank_text = yank.yank_text
             table.insert(items, {
@@ -39,12 +39,12 @@ local snacks_source = {
     confirm = { "paste", "close" },
 }
 
-function M.setup_commands()
-    if Snacks and pcall(require, "snacks.picker") then
+function M.setup()
+    if Snacks and Snacks.picker then
         Snacks.picker.sources.yankbank = snacks_source
     end
     vim.api.nvim_create_user_command("YankBankSnacks", function()
-        if Snacks and pcall(require, "yankbank.pickers.snacks") then
+        if Snacks then
             Snacks.picker(snacks_source)
         else
             vim.notify("Yank bank: Snacks is not loaded", vim.log.levels.ERROR)
