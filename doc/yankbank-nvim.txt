@@ -1,4 +1,4 @@
-*yankbank-nvim.txt*      For Neovim >= 0.7.0      Last change: 2026 January 02
+*yankbank-nvim.txt*      For Neovim >= 0.7.0      Last change: 2026 January 17
 
 ==============================================================================
 Table of Contents                            *yankbank-nvim-table-of-contents*
@@ -148,7 +148,8 @@ yank from popup to | `"+"` | | persist_type | string defining persistence type
 "sqlite" or nil | `nil` | | db_path | string defining database file path for
 use with sqlite persistence | plugin install directory | | bind_indices |
 optional string to be used for keybind prefix for pasting by index number
-(i.e. "p") | `nil` |
+(i.e. "p") | `nil` | | pickers | table containing all pickers. | `{}` | |
+pickers.snacks | boolean | `false` |
 
 
 EXAMPLE CONFIGURATION
@@ -156,6 +157,9 @@ EXAMPLE CONFIGURATION
 >lua
     {
         "ptdewey/yankbank-nvim",
+        dependencies = {
+            "folke/snacks.nvim", -- (optional) - snacks picker integration
+        },
         config = function()
             require('yankbank').setup({
                 max_entries = 9,
@@ -171,6 +175,9 @@ EXAMPLE CONFIGURATION
                     yank_register = "+",
                 },
                 bind_indices = "<leader>p"
+                pickers = {
+                    snacks = true,
+                },
             })
         end,
     }
@@ -239,6 +246,14 @@ I would personally also recommend setting a keybind to open the menu.
     -- map to '<leader>y'
     vim.keymap.set("n", "<leader>y", "<cmd>YankBank<CR>", { noremap = true })
 <
+
+
+SNACKS PICKER ~
+
+If `pickers.snacks` is set to true in the setup options, the snacks picker can
+be used to open the yankbank menu. This can be triggered by running the command
+`:YankBankSnacks` or using `Snacks.picker.yankbank()` as you would any other
+snacks picker.
 
 ------------------------------------------------------------------------------
 
