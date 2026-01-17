@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/ptdewey/yankbank-nvim/compare/v1.1.2...v1.2.0) (2026-01-17)
+
+
+### Features
+
+* Add a snacks picker integration ([82b0c58](https://github.com/ptdewey/yankbank-nvim/commit/82b0c58417448cbe32798180dae4b3a2fa36430a))
+
 ## [1.1.2](https://github.com/ptdewey/yankbank-nvim/compare/v1.1.1...v1.1.2) (2026-01-02)
 
 
