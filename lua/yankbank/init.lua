@@ -96,7 +96,7 @@ function M.setup(opts)
     end
 
     if merged_opts.pickers.snacks then
-        require("yankbank.pickers.snacks").setup_commands()
+        require("yankbank.pickers.snacks").setup()
     end
 end
 
