@@ -18,6 +18,8 @@ local snacks_source = {
                 reg_type = yank.reg_type,
                 -- data is used as the paste content
                 data = yank_text,
+                -- text is used by the matcher for searching
+                text = yank_text,
                 -- value is used to display in the picker
                 value = yank_text,
                 preview = {
