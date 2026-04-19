@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://github.com/ptdewey/yankbank-nvim/compare/v1.2.0...v1.3.0) (2026-04-19)
+
+
+### Features
+
+* heaalthcheck and misc fixes ([3c939ec](https://github.com/ptdewey/yankbank-nvim/commit/3c939ec8725a4b9e10c4d0fd30a1fa9f4bdb6f07))
+* move init code to plugin/yankbank.lua ([a60cb43](https://github.com/ptdewey/yankbank-nvim/commit/a60cb43a7980cd5e4acc2e0edb9291bf2574dd4f))
+
 ## [1.2.0](https://github.com/ptdewey/yankbank-nvim/compare/v1.1.2...v1.2.0) (2026-01-17)
 
 
