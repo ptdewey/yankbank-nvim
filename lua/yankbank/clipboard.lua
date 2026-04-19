@@ -78,34 +78,8 @@ function M.add_yank(text, reg_type, pin)
     require("yankbank.persistence").add_entry(text, reg_type, pin)
 end
 
---- autocommand to listen for yank events
-function M.setup_yank_autocmd()
-    vim.api.nvim_create_autocmd("TextYankPost", {
-        callback = function()
-            -- get register information
-            local rn = vim.v.event.regname
-
-            -- check changes were made to default register
-            if rn == "" or rn == "+" then
-                local reg_type = vim.fn.getregtype(rn)
-                local yank_text = vim.fn.getreg(rn)
-
-                if not yank_text or type(yank_text) ~= "string" then
-                    return
-                end
-
-                if #yank_text <= 1 then
-                    return
-                end
-
-                -- lazy load initialization when first yank happens
-                require("yankbank").ensure_initialized()
-                M.add_yank(yank_text, reg_type)
-            end
-        end,
-    })
-
-    -- poll registers when vim is focused (check for new clipboard activity)
+--- poll registers when vim is focused (check for new clipboard activity)
+function M.setup_focus_autocmd()
     local opts = state.get_opts()
     if opts.focus_gain_poll == true then
         vim.api.nvim_create_autocmd("FocusGained", {

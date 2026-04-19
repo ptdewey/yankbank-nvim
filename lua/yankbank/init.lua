@@ -17,7 +17,7 @@ function M.ensure_initialized()
 end
 
 --- wrapper function for main plugin functionality
-local function show_yank_bank()
+function M.show()
     M.ensure_initialized()
 
     local state = require("yankbank.state")
@@ -69,13 +69,8 @@ function M.setup(opts)
     local state = require("yankbank.state")
     state.set_opts(merged_opts)
 
-    -- create user command
-    vim.api.nvim_create_user_command("YankBank", function()
-        show_yank_bank()
-    end, { desc = "Show Recent Yanks" })
-
-    -- create clipboard autocmds
-    require("yankbank.clipboard").setup_yank_autocmd()
+    -- focus-gain polling autocmd (TextYankPost is registered in plugin/yankbank.lua)
+    require("yankbank.clipboard").setup_focus_autocmd()
 
     -- Bind 1-n if `bind_indices` is set to a string
     if merged_opts.bind_indices then
