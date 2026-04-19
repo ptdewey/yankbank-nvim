@@ -20,17 +20,24 @@ function M.check()
     if opts and next(opts) ~= nil then
         ok("setup() has been called")
         info("max_entries = " .. tostring(opts.max_entries))
-        info("yank_register = " .. tostring(opts.registers and opts.registers.yank_register))
+        info(
+            "yank_register = "
+                .. tostring(opts.registers and opts.registers.yank_register)
+        )
         info("persist_type = " .. tostring(opts.persist_type))
     else
-        warn("setup() has not been called — defaults will apply on first yank")
+        warn(
+            "setup() has not been called — defaults will apply on first yank"
+        )
     end
 
     local clipboard = vim.fn.has("clipboard") == 1
     if clipboard then
         ok("clipboard provider available")
     else
-        warn("no clipboard provider detected — `+` register yanks will not be captured")
+        warn(
+            "no clipboard provider detected — `+` register yanks will not be captured"
+        )
     end
 
     if opts and opts.persist_type == "sqlite" then
