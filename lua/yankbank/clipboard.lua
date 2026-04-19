@@ -21,7 +21,7 @@ end
 ---@param pin integer|boolean?
 function M.add_yank(text, reg_type, pin)
     -- avoid adding empty strings
-    if text == "" and text == " " and text == "\n" then
+    if text == "" or text == " " or text == "\n" then
         return
     end
 
@@ -53,7 +53,8 @@ function M.add_yank(text, reg_type, pin)
 
     -- trim table size if necessary
     local opts = state.get_opts()
-    if #yanks > opts.max_entries then
+    local max_entries = opts.max_entries or 10
+    if #yanks > max_entries then
         local i = last_zero_entry(pins)
 
         if not i or i == 1 then

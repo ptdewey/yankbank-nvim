@@ -12,7 +12,7 @@ function M.ensure_initialized()
 
     -- enable persistence based on opts (needs to be called before autocmd setup)
     local yanks, reg_types, pins = persistence.setup()
-    state.init(yanks, reg_types, pins, state.get_opts())
+    state.init(yanks, reg_types, pins)
     initialized = true
 end
 

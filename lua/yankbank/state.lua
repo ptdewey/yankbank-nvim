@@ -39,11 +39,10 @@ function M.set_opts(opts)
     state.opts = opts
 end
 
-function M.init(yanks, reg_types, pins, opts)
+function M.init(yanks, reg_types, pins)
     state.yanks = yanks or {}
     state.reg_types = reg_types or {}
     state.pins = pins or {}
-    state.opts = opts or {}
 end
 
 return M
