@@ -45,6 +45,8 @@ local snacks_source = {
             -- place paste content back into register. This is helpful if you
             -- wanted to select a paste item from history and use it repeatedly
             vim.fn.setreg(opts.registers.paste_register, selected.value)
+        else
+            vim.api.nvim_paste(selected.value, true, -1)
         end
     end,
 }
