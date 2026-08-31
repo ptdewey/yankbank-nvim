@@ -54,6 +54,7 @@ function M.setup(opts)
         num_behavior = "prefix",
         registers = {
             yank_register = "+",
+            paste_register = nil, -- set this to "*" if you want to paste repeatedly
         },
         keymaps = {},
         persist_type = nil,
