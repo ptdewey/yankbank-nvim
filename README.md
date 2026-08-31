@@ -112,6 +112,7 @@ The setup function also supports taking in a table of options:
 | focus_gain_poll | boolean | `false` |
 | registers | table container for register overrides | `{ }` |
 | registers.yank_register | default register to yank from popup to | `"+"` |
+| registers.paste_register | default register to update when pasting from popup | nil |
 | persist_type | string defining persistence type "sqlite" or nil | `nil` |
 | db_path | string defining database file path for use with sqlite persistence | plugin install directory |
 | bind_indices | optional string to be used for keybind prefix for pasting by index number (i.e. "<leader>p") | `nil` |
@@ -140,6 +141,8 @@ The setup function also supports taking in a table of options:
             },
             registers = {
                 yank_register = "+",
+                paste_register = "*", -- When selecting an item from the quick access menu, updates this register with that item,
+                                      -- i.e., enables consecutive pastes
             },
             bind_indices = "<leader>p"
             pickers = {

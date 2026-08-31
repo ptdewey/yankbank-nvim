@@ -1,5 +1,7 @@
 local M = {}
 
+local state = require("yankbank.state")
+
 --- navigate to the next numbered item
 ---@param steps integer
 function M.next_numbered_item(steps)
@@ -63,6 +65,13 @@ function M.smart_paste(text, reg_type, after)
     end
 
     vim.api.nvim_put(lines, reg_type, after, true)
+
+    local opts = state.get_opts()
+    if opts.registers.paste_register then
+        -- place paste content back into register. This is helpful if you
+        -- wanted to select a paste item from history and use it repeatedly
+        vim.fn.setreg(opts.registers.paste_register, text)
+    end
 end
 
 return M
