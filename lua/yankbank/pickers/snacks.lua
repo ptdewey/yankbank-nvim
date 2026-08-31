@@ -36,7 +36,17 @@ local snacks_source = {
     end,
     format = "register",
     preview = "preview",
-    confirm = { "paste", "close" },
+    confirm = function(picker, selected)
+        picker:close()
+
+        local state = require("yankbank.state")
+        local opts = state.get_opts()
+        if opts.registers.paste_register then
+            -- place paste content back into register. This is helpful if you
+            -- wanted to select a paste item from history and use it repeatedly
+            vim.fn.setreg(opts.registers.paste_register, selected.value)
+        end
+    end,
 }
 
 function M.setup()
