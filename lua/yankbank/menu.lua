@@ -90,8 +90,8 @@ local function get_display_lines()
                     display_lines,
                     string.rep(" ", max_digits + 2) .. opts.sep
                 )
+                table.insert(line_yank_map, false)
             end
-            table.insert(line_yank_map, false)
         end
     end
 
