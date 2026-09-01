@@ -70,7 +70,7 @@ function M.smart_paste(text, reg_type, after)
     if opts.registers.paste_register then
         -- place paste content back into register. This is helpful if you
         -- wanted to select a paste item from history and use it repeatedly
-        vim.fn.setreg(opts.registers.paste_register, text)
+        vim.fn.setreg(opts.registers.paste_register, text, reg_type)
     end
 end
 
