@@ -11,18 +11,15 @@ local snacks_source = {
             local yank = yanks[i]
             local yank_text = yank.yank_text
             table.insert(items, {
-                label = tostring(i),
-                reg = tostring(i),
-                -- This is not used right now, but might be useful in the future
-                -- to determine how to paste the content
+                -- we may use the reg_type for repopulating the registers on paste
                 reg_type = yank.reg_type,
-                -- data is used as the paste content
-                data = yank_text,
-                -- text is used by the matcher for searching
-                text = yank_text,
-                -- value is used to display in the picker
+                -- text is used by the matcher for searching and to show in the preview buffer
+                -- we trim prefix/suffix whitespace for readability
+                text = vim.trim(yank_text),
+                -- value is actual content pasted
                 value = yank_text,
                 preview = {
+                    -- show original, untrimmed content in preview window
                     text = yank_text,
                     -- Currently this is pinned to the current buffer's filetype
                     -- as we don't store the filetype of each yank.
@@ -34,7 +31,7 @@ local snacks_source = {
         end
         return items
     end,
-    format = "register",
+    format = "text",
     preview = "preview",
     confirm = function(picker, selected)
         picker:close()
